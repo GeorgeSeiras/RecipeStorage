@@ -11,24 +11,12 @@
         android:layout_height="wrap_content"
         android:background="#FFFFFF">
 
-        <TextView
-            android:id="@+id/new_recipe_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="80dp"
-            android:layout_marginTop="44dp"
-            android:text="@string/create_a_new_recipe"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <EditText
             android:id="@+id/title_edit"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginStart="80dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="30dp"
             android:layout_marginEnd="80dp"
             android:autofillHints=""
             android:hint="@string/Title"
@@ -36,7 +24,7 @@
             android:textColorHint="#2E7D32"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/new_recipe_text" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/course"
@@ -69,13 +57,133 @@
             app:layout_constraintTop_toBottomOf="@+id/course" />
 
         <TableLayout
+            android:id="@+id/prep_time_table"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="80dp"
+            android:stretchColumns="1,3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/origin">
+
+            <TableRow
+                android:id="@+id/prep_time_row"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:id="@+id/prep_time_label"
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="@string/prep_time" />
+
+                <EditText
+                    android:id="@+id/prep_time_h"
+                    android:layout_width="15dp"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:hint=""
+                    android:inputType="number"
+                    android:textColorHint="#757575" />
+
+                <TextView
+                    android:id="@+id/prep_time_h_label"
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="h"
+                    android:textSize="20sp" />
+
+                <EditText
+                    android:id="@+id/prep_time_m"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:hint=""
+                    android:inputType="number"
+                    android:textColorHint="#757575" />
+
+                <TextView
+                    android:id="@+id/prep_time_m_label"
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="m"
+                    android:textSize="20sp" />
+            </TableRow>
+        </TableLayout>
+
+        <TableLayout
+            android:id="@+id/cook_time_table"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="80dp"
+            android:stretchColumns="1,3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/prep_time_table">
+
+            <TableRow
+                android:id="@+id/cook_time_row"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:id="@+id/cook_time_label"
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="@string/cook_time" />
+
+                <EditText
+                    android:id="@+id/cook_time_h"
+                    android:layout_width="15dp"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:hint=""
+                    android:inputType="number"
+                    android:textColorHint="#757575" />
+
+                <TextView
+                    android:id="@+id/cook_time_h_label"
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="h"
+                    android:textSize="20sp" />
+
+                <EditText
+                    android:id="@+id/cook_time_m"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:hint=""
+                    android:inputType="number"
+                    android:textColorHint="#757575" />
+
+                <TextView
+                    android:id="@+id/cook_time_m_label"
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="m"
+                    android:textSize="20sp" />
+            </TableRow>
+        </TableLayout>
+
+        <TableLayout
             android:id="@+id/ingredient_table"
             android:layout_width="404dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="30dp"
             android:stretchColumns="*"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/origin">
+            app:layout_constraintTop_toBottomOf="@+id/cook_time_table">
 
             <TableRow
                 android:id="@+id/ingredient_table_row_0"
@@ -180,7 +288,7 @@
             tools:ignore="TextContrastCheck,DuplicateSpeakableTextCheck" />
 
         <Button
-            android:id="@+id/create_recipe_button"
+            android:id="@+id/button_create_recipe"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginStart="108dp"

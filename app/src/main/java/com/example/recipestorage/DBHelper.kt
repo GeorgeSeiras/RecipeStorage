@@ -49,10 +49,8 @@ class DatabaseHandler(context: Context) :
             + recipeOrigin + " STRING NOT NULL"
             + ");")
 
-    fun addRecipe(recipe: Recipe): Long {
-        val db = this.writableDatabase
+    fun addRecipe(recipe: Recipe, db: SQLiteDatabase): Long {
         try {
-            db.beginTransaction()
             val contentValues = ContentValues()
 
             contentValues.put(recipeTitle, recipe.title)
@@ -61,22 +59,16 @@ class DatabaseHandler(context: Context) :
             contentValues.put(recipeCourse, recipe.course)
             contentValues.put(recipeOrigin, recipe.origin)
 
-            val success = db.insert(recipeTableName, null, contentValues)
-            db.setTransactionSuccessful()
-            db.endTransaction()
-            db.close()
-            return success
+            return db.insert(recipeTableName, null, contentValues)
         } catch (e: Exception) {
-            db.endTransaction()
-            db.close()
             return -1
         }
     }
 
     fun populateRecipe(
-        cursor: Cursor
+        cursor: Cursor,
+        db: SQLiteDatabase
     ): Recipe {
-
 
         val recipe = Recipe(
             id = cursor.getInt(cursor.getColumnIndexOrThrow(recipeId)),
@@ -86,13 +78,15 @@ class DatabaseHandler(context: Context) :
             course = cursor.getString(cursor.getColumnIndexOrThrow(recipeCourse)),
             origin = cursor.getString(cursor.getColumnIndexOrThrow(recipeOrigin)),
             steps = getRecipeSteps(cursor.getLong(cursor.getColumnIndexOrThrow(recipeId))),
-            ingredients = getRecipeIngredients(cursor.getLong(cursor.getColumnIndexOrThrow(recipeId)))
+            ingredients = getRecipeIngredients(
+                cursor.getLong(cursor.getColumnIndexOrThrow(recipeId)),
+                db
+            )
         )
         return recipe
     }
 
-    fun getRecipeById(id: Long): Recipe {
-        val db = this.readableDatabase
+    fun getRecipeById(id: Long, db: SQLiteDatabase): Recipe {
         val query = "select * " +
                 "from $recipeTableName " +
                 "where $recipeTableName.$recipeId=?"
@@ -102,10 +96,8 @@ class DatabaseHandler(context: Context) :
 //            arrayOf()
 //        )
         if (cursor.moveToFirst()) {
-            db.close()
-            return populateRecipe(cursor)
+            return populateRecipe(cursor, db)
         }
-        db.close()
         throw Exception("Recipe not found")
     }
 
@@ -133,20 +125,16 @@ class DatabaseHandler(context: Context) :
         }
     }
 
-    fun addStep(step: Step): Long {
-        val db = this.writableDatabase
+    fun addStep(step: Step, db: SQLiteDatabase): Long {
         val contentValues = ContentValues()
 
         contentValues.put(stepStep, step.step)
         contentValues.put(stepRecipeId, step.recipeId)
 
-        val success = db.insertOrThrow(stepTableName, null, contentValues)
-        db.close()
-        return success
+        return db.insertOrThrow(stepTableName, null, contentValues)
     }
 
-    fun addSteps(steps: ArrayList<Step>): ArrayList<Long> {
-        val db = this.writableDatabase
+    fun addSteps(steps: ArrayList<Step>, db: SQLiteDatabase): ArrayList<Long> {
         val results: ArrayList<Long> = arrayListOf()
         for (step in steps) {
             val contentValues = ContentValues()
@@ -154,15 +142,11 @@ class DatabaseHandler(context: Context) :
             contentValues.put(stepRecipeId, step.recipeId)
             results.add(db.insertOrThrow(stepTableName, null, contentValues))
         }
-        db.close()
         return results
     }
 
-    fun removeStep(id: Long): Int {
-        val db = this.writableDatabase
-        val result = db.delete(stepTableName, "$stepId=?", arrayOf("$id"))
-        db.close()
-        return result
+    fun removeStep(id: Long, db: SQLiteDatabase): Int {
+        return db.delete(stepTableName, "$stepId=?", arrayOf("$id"))
     }
 
     fun getRecipeSteps(id: Long): ArrayList<Step?> {
@@ -203,8 +187,7 @@ class DatabaseHandler(context: Context) :
             + " foreign key($ingredientRecipeId) references recipe($recipeId)"
             + ");")
 
-    fun addIngredient(ingredient: Ingredient): Long {
-        val db = this.writableDatabase
+    fun addIngredient(ingredient: Ingredient, db: SQLiteDatabase): Long {
         val contentValues = ContentValues()
 
         contentValues.put(ingredientId, ingredient.id)
@@ -213,26 +196,23 @@ class DatabaseHandler(context: Context) :
         contentValues.put(ingredientIngredient, ingredient.ingredient)
         contentValues.put(ingredientRecipeId, ingredient.recipeId)
 
-        val success = db.insert(ingredientTableName, null, contentValues)
-        db.close()
-        return success
+        return db.insert(ingredientTableName, null, contentValues)
     }
 
-    fun addIngredients(ingredients: ArrayList<Ingredient>): ArrayList<Long> {
-        val db = this.writableDatabase
+    fun addIngredients(ingredients: ArrayList<Ingredient>, db: SQLiteDatabase): ArrayList<Long> {
         val results: ArrayList<Long> = arrayListOf()
         for (ingredient in ingredients) {
             val contentValues = ContentValues()
+            contentValues.put(ingredientAmount, ingredient.amount)
+            contentValues.put(ingredientUnit, ingredient.unit)
             contentValues.put(ingredientIngredient, ingredient.ingredient)
             contentValues.put(ingredientRecipeId, ingredient.recipeId)
-            results.add(db.insertOrThrow(stepTableName, null, contentValues))
+            results.add(db.insertOrThrow(ingredientTableName, null, contentValues))
         }
-        db.close()
         return results
     }
 
-    fun getRecipeIngredients(id: Long): ArrayList<Ingredient?> {
-        val db = this.readableDatabase
+    fun getRecipeIngredients(id: Long, db: SQLiteDatabase): ArrayList<Ingredient?> {
         val table = ingredientTableName
         val columns = null
         val selection = "$ingredientRecipeId =?"
@@ -250,7 +230,6 @@ class DatabaseHandler(context: Context) :
             } while (cursor.moveToNext())
             return ingredients
         }
-        db.close()
         throw Exception("Error while populating recipe")
     }
 
@@ -277,7 +256,24 @@ class DatabaseHandler(context: Context) :
     fun removeIngredient(id: Int): Int {
         val db = this.writableDatabase
         db.delete(ingredientTableName, "$ingredientId=?", arrayOf("$id"))
-        db.close()
         return 1
     }
+
+    fun beginTransaction(db: SQLiteDatabase) {
+        val db = this.writableDatabase
+        db.beginTransaction()
+    }
+
+    fun commitTransaction(db: SQLiteDatabase) {
+        db.setTransactionSuccessful()
+    }
+
+    fun endTransaction(db: SQLiteDatabase) {
+        db.endTransaction()
+    }
+
+    fun closeDatabase(db: SQLiteDatabase) {
+        db.close()
+    }
+
 }

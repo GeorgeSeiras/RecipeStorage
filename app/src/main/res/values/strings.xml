@@ -11,4 +11,8 @@
     <string name="create_recipe">Create Recipe</string>
     <string name="Unit">Unit</string>
     <string name="Amount">Amount</string>
+    <string name="Prep">Prep Time (mins) </string>
+    <string name="Cook">Cook Time (mins) </string>
+    <string name="cook_time">Cook Time:</string>
+    <string name="prep_time">Prep Time:</string>
 </resources>
