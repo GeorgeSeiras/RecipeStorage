@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/new_recipe_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF">
+
+        <TextView
+            android:id="@+id/new_recipe_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="44dp"
+            android:text="@string/create_a_new_recipe"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/title_edit"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="80dp"
+            android:autofillHints=""
+            android:hint="@string/Title"
+            android:inputType="text"
+            android:textColorHint="#2E7D32"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/new_recipe_text" />
+
+        <EditText
+            android:id="@+id/course"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="80dp"
+            android:autofillHints=""
+            android:hint="@string/Course"
+            android:inputType="text"
+            android:textColorHint="#757575"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_edit" />
+
+        <EditText
+            android:id="@+id/origin"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="80dp"
+            android:autofillHints=""
+            android:hint="@string/Origin"
+            android:inputType="text"
+            android:textColorHint="#757575"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/course" />
+
+        <TableLayout
+            android:id="@+id/ingredient_table"
+            android:layout_width="404dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:stretchColumns="*"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/origin">
+
+            <TableRow
+                android:id="@+id/ingredient_table_row_0"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent">
+
+                <EditText
+                    android:id="@+id/amount_0"
+                    android:layout_width="70dp"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:hint="@string/Amount"
+                    android:inputType="text"
+                    android:textColorHint="#757575" />
+
+                <EditText
+                    android:id="@+id/unit_0"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:hint="@string/Unit"
+                    android:inputType="text"
+                    android:textColorHint="#757575" />
+
+                <EditText
+                    android:id="@+id/ingredient_0"
+                    android:layout_width="290dp"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:hint="@string/Ingredient"
+                    android:inputType="text"
+                    android:textColorHint="#757575" />
+
+            </TableRow>
+
+
+        </TableLayout>
+
+        <Button
+            android:id="@+id/button_ingredient"
+            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="150dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="150dp"
+            android:backgroundTint="#50C878"
+            android:text="@string/new_element"
+            app:cornerRadius="28dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ingredient_table"
+            tools:ignore="TextContrastCheck,DuplicateSpeakableTextCheck" />
+
+
+        <TableLayout
+            android:id="@+id/step_table"
+            android:layout_width="410dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:stretchColumns="*"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_ingredient">
+
+            <TableRow
+                android:id="@+id/ingredient_step_row_0"
+                android:layout_width="378dp"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/step_0"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints=""
+                    android:hint="@string/Step"
+                    android:inputType="textMultiLine"
+                    android:lines="10"
+                    android:maxLines="10"
+                    android:minLines="1"
+                    android:textColorHint="#757575" />
+
+            </TableRow>
+
+
+        </TableLayout>
+
+        <Button
+            android:id="@+id/button_step"
+            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="150dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="150dp"
+            android:backgroundTint="#50C878"
+            android:text="@string/new_element"
+            app:cornerRadius="28dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/step_table"
+            tools:ignore="TextContrastCheck,DuplicateSpeakableTextCheck" />
+
+        <Button
+            android:id="@+id/create_recipe_button"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="108dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="108dp"
+            android:text="@string/create_recipe"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_step" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

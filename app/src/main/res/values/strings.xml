@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">RecipeStorage</string>
+    <string name="new_recipe_button">new_recipe_button</string>
+    <string name="create_a_new_recipe">Create A New Recipe</string>
+    <string name="Title">Title</string>
+    <string name="Course">Course</string>
+    <string name="Origin">Origin</string>
+    <string name="Ingredient">Ingredient</string>
+    <string name="new_element">+</string>
+    <string name="Step">Step</string>
+    <string name="create_recipe">Create Recipe</string>
+    <string name="Unit">Unit</string>
+    <string name="Amount">Amount</string>
+</resources>
