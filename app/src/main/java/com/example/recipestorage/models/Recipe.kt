@@ -12,6 +12,21 @@ class Recipe(
 
     ) {
 
+    fun getPrepTime(): HashMap<String, Int> {
+        val timeMap = HashMap<String, Int>()
+        timeMap["h"] = prepTime / 3600
+        timeMap["m"] = (prepTime % 3600) / 60
+
+        return timeMap
+    }
+
+    fun getCookTime(): HashMap<String, Int> {
+        val timeMap = HashMap<String, Int>()
+        timeMap["h"] = cookTime / 3600
+        timeMap["m"] = (cookTime % 3600) / 60
+        return timeMap
+    }
+
     override fun toString(): String {
         val stepsList: ArrayList<String> = arrayListOf()
         val ingredientsList: ArrayList<String> = arrayListOf()

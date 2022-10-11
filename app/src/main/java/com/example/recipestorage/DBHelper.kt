@@ -77,13 +77,33 @@ class DatabaseHandler(context: Context) :
             cookTime = cursor.getInt(cursor.getColumnIndexOrThrow(recipeCookTime)),
             course = cursor.getString(cursor.getColumnIndexOrThrow(recipeCourse)),
             origin = cursor.getString(cursor.getColumnIndexOrThrow(recipeOrigin)),
-            steps = getRecipeSteps(cursor.getLong(cursor.getColumnIndexOrThrow(recipeId))),
+            steps = getRecipeSteps(cursor.getLong(cursor.getColumnIndexOrThrow(recipeId)), db),
             ingredients = getRecipeIngredients(
                 cursor.getLong(cursor.getColumnIndexOrThrow(recipeId)),
                 db
             )
         )
         return recipe
+    }
+
+    fun getRecipes(db: SQLiteDatabase): ArrayList<Recipe> {
+        val recipes: ArrayList<Recipe> = arrayListOf()
+        val table = recipeTableName
+        val columns = null
+        val selection = null
+        val selectionArgs: Array<String> = arrayOf()
+        val groupBy: String? = null
+        val having: String? = null
+        val orderBy = null
+        val limit = null
+        val cursor: Cursor =
+            db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)
+        if (cursor.moveToFirst()) {
+            do {
+                recipes.add(populateRecipe(cursor, db))
+            } while (cursor.moveToNext())
+        }
+        return recipes
     }
 
     fun getRecipeById(id: Long, db: SQLiteDatabase): Recipe {
@@ -149,8 +169,7 @@ class DatabaseHandler(context: Context) :
         return db.delete(stepTableName, "$stepId=?", arrayOf("$id"))
     }
 
-    fun getRecipeSteps(id: Long): ArrayList<Step?> {
-        val db = this.readableDatabase
+    fun getRecipeSteps(id: Long, db: SQLiteDatabase): ArrayList<Step?> {
         val table = stepTableName
         val columns = null
         val selection = "$stepRecipeId = ?"

@@ -15,4 +15,10 @@
     <string name="Cook">Cook Time (mins) </string>
     <string name="cook_time">Cook Time:</string>
     <string name="prep_time">Prep Time:</string>
+    <string name="search">Search</string>
+    <string name="Search">Search</string>
+    <string name="h">h</string>
+    <string name="m">m</string>
+    <string name="hours">Hours</string>
+    <string name="minutes">Minutes</string>
 </resources>

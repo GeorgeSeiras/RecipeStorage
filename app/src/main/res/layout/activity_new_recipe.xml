@@ -78,6 +78,7 @@
                     android:layout_width="80dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
+                    android:textColor="#000000"
                     android:text="@string/prep_time" />
 
                 <EditText
@@ -95,6 +96,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="h"
+                    android:textColor="#000000"
                     android:textSize="20sp" />
 
                 <EditText
@@ -112,6 +114,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="m"
+                    android:textColor="#000000"
                     android:textSize="20sp" />
             </TableRow>
         </TableLayout>
@@ -138,6 +141,8 @@
                     android:layout_width="80dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
+                    android:textColor="#000000"
+
                     android:text="@string/cook_time" />
 
                 <EditText
@@ -154,6 +159,7 @@
                     android:layout_width="20dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
+                    android:textColor="#000000"
                     android:text="h"
                     android:textSize="20sp" />
 
@@ -171,6 +177,7 @@
                     android:layout_width="20dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
+                    android:textColor="#000000"
                     android:text="m"
                     android:textSize="20sp" />
             </TableRow>
