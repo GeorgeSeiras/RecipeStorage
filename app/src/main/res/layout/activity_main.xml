@@ -36,12 +36,12 @@
                 android:textColor="#000000" />
 
             <EditText
-                android:id="@+id/et_search_recipes"
+                android:id="@+id/et_search_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".70"
                 android:autofillHints=""
-                android:hint="@string/Search"
+                android:hint="@string/Title"
                 android:inputType="text"
                 android:minHeight="48dp"
                 android:textColorHint="#757575" />

@@ -106,15 +106,31 @@ class DatabaseHandler(context: Context) :
         return recipes
     }
 
+    fun getRecipeByTitle(title: String, db: SQLiteDatabase): ArrayList<Recipe> {
+        val table = recipeTableName
+        val columns = null
+        val selection = "$recipeTitle LIKE ?"
+        val selectionArgs: Array<String> = arrayOf("%$title%")
+        val groupBy: String? = null
+        val having: String? = null
+        val orderBy = null
+        val limit = null
+        val cursor: Cursor =
+            db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)
+        val recipes: ArrayList<Recipe> = arrayListOf()
+        if (cursor.moveToFirst()) {
+            do {
+                recipes.add(populateRecipe(cursor, db))
+            } while (cursor.moveToNext())
+        }
+        return recipes
+    }
+
     fun getRecipeById(id: Long, db: SQLiteDatabase): Recipe {
         val query = "select * " +
                 "from $recipeTableName " +
                 "where $recipeTableName.$recipeId=?"
         val cursor = db.rawQuery(query, arrayOf("$id"))
-//        val cursor = db.rawQuery(
-//            "select * from recipe ",
-//            arrayOf()
-//        )
         if (cursor.moveToFirst()) {
             return populateRecipe(cursor, db)
         }
