@@ -12,6 +12,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
+        android:layout_marginStart="10sp"
+        android:layout_marginEnd="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,29 +24,57 @@
             android:id="@+id/ll_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:clickable="false">
-
-
-            <Button
-                android:id="@+id/bt_search_recipes"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight=".25"
-                android:backgroundTint="#0277BD"
-                android:text="@string/Search"
-                android:textColor="#000000" />
 
             <EditText
                 android:id="@+id/et_search_title"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight=".70"
                 android:autofillHints=""
                 android:hint="@string/Title"
                 android:inputType="text"
                 android:minHeight="48dp"
                 android:textColorHint="#757575" />
+
+            <LinearLayout
+                android:id="@+id/ll_search_course_origin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:clickable="false">
+
+                <EditText
+                    android:id="@+id/et_search_course"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".50"
+                    android:autofillHints=""
+                    android:hint="@string/Course"
+                    android:inputType="text"
+                    android:minHeight="49dp"
+                    android:textColorHint="#757575" />
+
+                <EditText
+                    android:id="@+id/et_search_origin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".50"
+                    android:autofillHints=""
+                    android:hint="@string/Origin"
+                    android:inputType="text"
+                    android:minHeight="49dp"
+                    android:textColorHint="#757575" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/bt_search_recipes"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight=".25"
+                android:backgroundTint="#0277BD"
+                android:text="@string/Search"
+                android:textColor="#000000" />
 
         </LinearLayout>
 
@@ -57,7 +87,7 @@
                 android:id="@+id/tl_recipes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="0dp"
                 android:layout_marginStart="20sp"
                 android:layout_marginEnd="20sp"
                 android:stretchColumns="*">

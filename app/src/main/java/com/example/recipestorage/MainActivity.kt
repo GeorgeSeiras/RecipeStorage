@@ -9,14 +9,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.marginEnd
 import com.example.recipestorage.models.Recipe
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,9 +39,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun searchByTitle(db: DatabaseHandler) {
         val titleEditText = findViewById<EditText>(R.id.et_search_title)
+        val courseEditText = findViewById<EditText>(R.id.et_search_course)
+        val originEditText = findViewById<EditText>(R.id.et_search_origin)
         val transaction = db.readableDatabase
         renderRecipes(
-            db.getRecipeByTitle(titleEditText.text.toString(), transaction)
+            db.getRecipesQuery(
+                titleEditText.text.toString(),
+                courseEditText.text.toString(),
+                originEditText.text.toString(),
+                transaction
+            )
         )
         db.closeDatabase(transaction)
     }
@@ -58,7 +61,7 @@ class MainActivity : AppCompatActivity() {
             getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         for (recipe in recipes) {
             val row = TableRow(this)
-            val recipeLayout: View = inflater.inflate(R.layout.recipe_layout, null, false)
+            val recipeLayout: View = inflater.inflate(R.layout.recipe_home_page_layout, null, false)
             recipeLayout.findViewById<TextView>(R.id.title).text = recipe.title
             recipeLayout.findViewById<TextView>(R.id.course).text = recipe.course
             recipeLayout.findViewById<TextView>(R.id.origin).text = recipe.origin
@@ -70,7 +73,12 @@ class MainActivity : AppCompatActivity() {
             recipeLayout.findViewById<TextView>(R.id.hours_cook).text = cookTimeMap["h"].toString()
             recipeLayout.findViewById<TextView>(R.id.minutes_cook).text =
                 cookTimeMap["m"].toString()
-
+            recipeLayout.setOnClickListener {
+                val intent = Intent(this, RecipeViewActivity::class.java)
+                intent.putExtra("recipeId", (recipe.id))
+                startActivity(intent)
+            }
+            row.setPadding(0, 0, 0, 10)
             row.addView(recipeLayout)
             recipeTable.addView(
                 row, TableRow.LayoutParams(

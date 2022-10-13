@@ -1,14 +1,14 @@
 package com.example.recipestorage.models
 
 class Recipe(
-    var id: Int? = null,
+    var id: Int,
     var title: String,
     var prepTime: Int,
     var cookTime: Int,
     var course: String,
     var origin: String,
-    var steps: ArrayList<Step?> = arrayListOf(null),
-    var ingredients: ArrayList<Ingredient?> = arrayListOf(null),
+    var steps: ArrayList<Step>,
+    var ingredients: ArrayList<Ingredient>,
 
     ) {
 

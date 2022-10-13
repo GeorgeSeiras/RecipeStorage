@@ -144,8 +144,6 @@ class NewRecipeActivity : AppCompatActivity() {
         val stepTable = findViewById<TableLayout>(R.id.step_table)
 
         if (fieldValidation()) {
-            val ingredientArrayList = arrayListOf<Ingredient>()
-            val stepArrayList = arrayListOf<Step>()
             val transaction = db.writableDatabase
             db.beginTransaction(transaction)
             var prepTime = 0
@@ -163,40 +161,34 @@ class NewRecipeActivity : AppCompatActivity() {
                 cookTime += Integer.parseInt(cookTimeM.text.toString()) * 60
             }
             val recipeId: Long = db.addRecipe(
-                Recipe(
-                    title = title.text.toString(),
-                    course = course.text.toString(),
-                    origin = origin.text.toString(),
-                    prepTime = prepTime,
-                    cookTime = cookTime
-                ),
+                title = title.text.toString(),
+                course = course.text.toString(),
+                origin = origin.text.toString(),
+                prepTime = prepTime,
+                cookTime = cookTime,
                 transaction
             )
 
             for (i in 0 until ingredientTable.childCount) {
                 val row = ingredientTable.getChildAt(i) as TableRow
 
-                ingredientArrayList.add(
-                    Ingredient(
-                        amount = (row.getChildAt(0) as EditText).text.toString(),
-                        unit = (row.getChildAt(1) as EditText).text.toString(),
-                        ingredient = (row.getChildAt(2) as EditText).text.toString(),
-                        recipeId = recipeId
-                    )
+                db.addIngredient(
+                    amount = (row.getChildAt(0) as EditText).text.toString(),
+                    unit = (row.getChildAt(1) as EditText).text.toString(),
+                    ingredient = (row.getChildAt(2) as EditText).text.toString(),
+                    recipeId = recipeId,
+                    db = transaction
                 )
             }
-            db.addIngredients(ingredientArrayList, transaction)
 
             for (i in 0 until stepTable.childCount) {
                 val row = stepTable.getChildAt(i) as TableRow
-                stepArrayList.add(
-                    Step(
-                        step = (row.getChildAt(0) as EditText).text.toString(),
-                        recipeId = recipeId
-                    )
+                db.addStep(
+                    step = (row.getChildAt(0) as EditText).text.toString(),
+                    recipeId = recipeId,
+                    db = transaction
                 )
             }
-            db.addSteps(stepArrayList, transaction)
 
             db.commitTransaction(transaction)
             db.endTransaction(transaction)

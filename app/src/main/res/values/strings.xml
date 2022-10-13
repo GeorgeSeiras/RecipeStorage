@@ -21,4 +21,8 @@
     <string name="m">m</string>
     <string name="hours">Hours</string>
     <string name="minutes">Minutes</string>
+    <string name="edit">EDIT</string>
+    <string name="delete">DELETE</string>
+    <string name="ingredients">Ingredients :</string>
+    <string name="steps">Steps :</string>
 </resources>

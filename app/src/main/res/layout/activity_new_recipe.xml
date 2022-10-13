@@ -191,7 +191,6 @@
             android:stretchColumns="*"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cook_time_table">
-
             <TableRow
                 android:id="@+id/ingredient_table_row_0"
                 android:layout_width="wrap_content"
@@ -223,10 +222,7 @@
                     android:hint="@string/Ingredient"
                     android:inputType="text"
                     android:textColorHint="#757575" />
-
             </TableRow>
-
-
         </TableLayout>
 
         <Button
