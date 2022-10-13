@@ -1,12 +1,12 @@
 package com.example.recipestorage
 
+import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
+import android.text.InputType
 import android.view.Gravity
-import android.widget.TableLayout
-import android.widget.TableRow
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import com.example.recipestorage.models.Ingredient
@@ -17,6 +17,17 @@ class RecipeViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recipe_view)
+
+        val editButton = findViewById<Button>(R.id.bt_edit)
+        editButton.setOnClickListener {
+            editButtonListener()
+        }
+
+        val deleteButton = findViewById<Button>(R.id.bt_delete)
+        deleteButton.setOnClickListener {
+            deleteButtonListener()
+        }
+
         val db = DatabaseHandler(this)
         val transaction = db.readableDatabase
         val extras: Bundle? = intent.extras
@@ -36,6 +47,14 @@ class RecipeViewActivity : AppCompatActivity() {
             renderIngredients(recipe.ingredients)
             renderSteps(recipe.steps)
         }
+
+    }
+
+    private fun editButtonListener() {
+
+    }
+
+    private fun deleteButtonListener() {
 
     }
 

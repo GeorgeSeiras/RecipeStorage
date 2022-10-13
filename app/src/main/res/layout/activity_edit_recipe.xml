@@ -19,8 +19,6 @@
             android:layout_marginTop="30dp"
             android:layout_marginEnd="80dp"
             android:autofillHints=""
-            android:backgroundTint="#000000"
-            android:textColor="#000000"
             android:hint="@string/Title"
             android:inputType="text"
             android:textColorHint="#2E7D32"
@@ -36,8 +34,6 @@
             android:layout_marginTop="25dp"
             android:layout_marginEnd="80dp"
             android:autofillHints=""
-            android:backgroundTint="#000000"
-            android:textColor="#000000"
             android:hint="@string/Course"
             android:inputType="text"
             android:textColorHint="#757575"
@@ -48,13 +44,11 @@
         <EditText
             android:id="@+id/origin"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="48dp"
             android:layout_marginStart="80dp"
             android:layout_marginTop="25dp"
             android:layout_marginEnd="80dp"
             android:autofillHints=""
-            android:backgroundTint="#000000"
-            android:textColor="#000000"
             android:hint="@string/Origin"
             android:inputType="text"
             android:textColorHint="#757575"
@@ -92,8 +86,6 @@
                     android:layout_width="15dp"
                     android:layout_height="match_parent"
                     android:autofillHints=""
-                    android:backgroundTint="#000000"
-                    android:textColor="#000000"
                     android:hint=""
                     android:inputType="number"
                     android:textColorHint="#757575" />
@@ -103,7 +95,7 @@
                     android:layout_width="20dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="h"
+                    android:text="@string/h"
                     android:textColor="#000000"
                     android:textSize="20sp" />
 
@@ -112,8 +104,6 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:autofillHints=""
-                    android:backgroundTint="#000000"
-                    android:textColor="#000000"
                     android:hint=""
                     android:inputType="number"
                     android:textColorHint="#757575" />
@@ -123,7 +113,7 @@
                     android:layout_width="20dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="m"
+                    android:text="@string/m"
                     android:textColor="#000000"
                     android:textSize="20sp" />
             </TableRow>
@@ -160,8 +150,6 @@
                     android:layout_width="15dp"
                     android:layout_height="match_parent"
                     android:autofillHints=""
-                    android:backgroundTint="#000000"
-                    android:textColor="#000000"
                     android:hint=""
                     android:inputType="number"
                     android:textColorHint="#757575" />
@@ -172,7 +160,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:textColor="#000000"
-                    android:text="h"
+                    android:text="@string/h"
                     android:textSize="20sp" />
 
                 <EditText
@@ -180,8 +168,6 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:autofillHints=""
-                    android:backgroundTint="#000000"
-                    android:textColor="#000000"
                     android:hint=""
                     android:inputType="number"
                     android:textColorHint="#757575" />
@@ -192,7 +178,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:textColor="#000000"
-                    android:text="m"
+                    android:text="@string/m"
                     android:textSize="20sp" />
             </TableRow>
         </TableLayout>
@@ -205,44 +191,7 @@
             android:stretchColumns="*"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cook_time_table">
-            <TableRow
-                android:id="@+id/ingredient_table_row_0"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent">
 
-                <EditText
-                    android:id="@+id/amount_0"
-                    android:layout_width="70dp"
-                    android:layout_height="match_parent"
-                    android:autofillHints=""
-                    android:backgroundTint="#000000"
-                    android:textColor="#000000"
-                    android:hint="@string/Amount"
-                    android:inputType="text"
-                    android:textColorHint="#757575" />
-
-                <EditText
-                    android:id="@+id/unit_0"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
-                    android:autofillHints=""
-                    android:backgroundTint="#000000"
-                    android:textColor="#000000"
-                    android:hint="@string/Unit"
-                    android:inputType="text"
-                    android:textColorHint="#757575" />
-
-                <EditText
-                    android:id="@+id/ingredient_0"
-                    android:layout_width="290dp"
-                    android:layout_height="match_parent"
-                    android:autofillHints=""
-                    android:backgroundTint="#000000"
-                    android:textColor="#000000"
-                    android:hint="@string/Ingredient"
-                    android:inputType="text"
-                    android:textColorHint="#757575" />
-            </TableRow>
         </TableLayout>
 
         <Button
@@ -255,7 +204,6 @@
             android:layout_marginEnd="150dp"
             android:backgroundTint="#50C878"
             android:text="@string/new_element"
-            android:textSize="20sp"
             app:cornerRadius="28dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -273,27 +221,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/button_ingredient">
 
-            <TableRow
-                android:id="@+id/ingredient_step_row_0"
-                android:layout_width="378dp"
-                android:layout_height="wrap_content">
-
-                <EditText
-                    android:id="@+id/step_0"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:autofillHints=""
-                    android:backgroundTint="#000000"
-                    android:hint="@string/Step"
-                    android:inputType="textMultiLine"
-                    android:lines="10"
-                    android:maxLines="10"
-                    android:minLines="1"
-                    android:textColor="#000000"
-                    android:textColorHint="#757575" />
-
-            </TableRow>
-
 
         </TableLayout>
 
@@ -307,7 +234,6 @@
             android:layout_marginEnd="150dp"
             android:backgroundTint="#50C878"
             android:text="@string/new_element"
-            android:textSize="20sp"
             app:cornerRadius="28dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -318,12 +244,10 @@
             android:id="@+id/button_edit_recipe"
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_marginStart="100dp"
+            android:layout_marginStart="108dp"
             android:layout_marginTop="30dp"
-            android:layout_marginEnd="100dp"
-            android:layout_marginBottom="5dp"
-            android:text="@string/create_recipe"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="108dp"
+            android:text="@string/edit_recipe"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/button_step" />

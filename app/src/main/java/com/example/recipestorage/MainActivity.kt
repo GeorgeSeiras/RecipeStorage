@@ -12,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.marginStart
 import com.example.recipestorage.models.Recipe
 
 class MainActivity : AppCompatActivity() {
@@ -61,7 +62,8 @@ class MainActivity : AppCompatActivity() {
             getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         for (recipe in recipes) {
             val row = TableRow(this)
-            val recipeLayout: View = inflater.inflate(R.layout.recipe_home_page_layout, null, false)
+
+            val recipeLayout: View = inflater.inflate(R.layout.recipe_home_page_layout, null, true)
             recipeLayout.findViewById<TextView>(R.id.title).text = recipe.title
             recipeLayout.findViewById<TextView>(R.id.course).text = recipe.course
             recipeLayout.findViewById<TextView>(R.id.origin).text = recipe.origin
@@ -82,7 +84,7 @@ class MainActivity : AppCompatActivity() {
             row.addView(recipeLayout)
             recipeTable.addView(
                 row, TableRow.LayoutParams(
-                    TableRow.LayoutParams.MATCH_PARENT,
+                    TableRow.LayoutParams.WRAP_CONTENT,
                     TableRow.LayoutParams.WRAP_CONTENT,
 
                     )

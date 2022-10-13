@@ -25,4 +25,5 @@
     <string name="delete">DELETE</string>
     <string name="ingredients">Ingredients :</string>
     <string name="steps">Steps :</string>
+    <string name="edit_recipe">EDIT_RECIPE</string>
 </resources>

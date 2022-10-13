@@ -9,9 +9,6 @@ import android.widget.*
 import android.widget.TableRow.LayoutParams
 import android.widget.TableRow.generateViewId
 import androidx.appcompat.app.AppCompatActivity
-import com.example.recipestorage.models.Ingredient
-import com.example.recipestorage.models.Recipe
-import com.example.recipestorage.models.Step
 
 
 class NewRecipeActivity : AppCompatActivity() {
@@ -39,7 +36,7 @@ class NewRecipeActivity : AppCompatActivity() {
             rowIdStep++
         }
 
-        val createButton = findViewById<Button>(R.id.button_create_recipe)
+        val createButton = findViewById<Button>(R.id.button_edit_recipe)
         createButton.setOnClickListener {
             createRecipeButtonListener(db)
         }
@@ -61,6 +58,8 @@ class NewRecipeActivity : AppCompatActivity() {
         amount.tag = "amount_$rowIdIngredient"
         amount.hint = "Amount"
         amount.setHintTextColor(parseColor("#757575"))
+        amount.setTextColor(parseColor("#000000"))
+        amount.background.setTint(parseColor("#000000"))
         amount.inputType = TYPE_CLASS_TEXT
         amount.layoutParams = LayoutParams(
             LayoutParams.MATCH_PARENT,
@@ -73,6 +72,8 @@ class NewRecipeActivity : AppCompatActivity() {
         unit.tag = "amount${rowIdIngredient}"
         unit.hint = "Unit"
         unit.setHintTextColor(parseColor("#757575"))
+        unit.setTextColor(parseColor("#000000"))
+        unit.background.setTint(parseColor("#000000"))
         unit.inputType = TYPE_CLASS_TEXT
         unit.layoutParams = LayoutParams(
             LayoutParams.MATCH_PARENT,
@@ -84,6 +85,8 @@ class NewRecipeActivity : AppCompatActivity() {
         ingredient.tag = "amount${rowIdIngredient}"
         ingredient.hint = "Ingredient"
         ingredient.setHintTextColor(parseColor("#757575"))
+        ingredient.setTextColor(parseColor("#000000"))
+        ingredient.background.setTint(parseColor("#000000"))
         ingredient.inputType = TYPE_CLASS_TEXT
         ingredient.layoutParams = LayoutParams(
             LayoutParams.MATCH_PARENT,
@@ -117,6 +120,8 @@ class NewRecipeActivity : AppCompatActivity() {
         step.maxLines = 10
         step.minLines = 1
         step.setHintTextColor(parseColor("#757575"))
+        step.setTextColor(parseColor("#000000"))
+        step.background.setTint(parseColor("#000000"))
         step.isSingleLine = false
         step.layoutParams = LayoutParams(
             LayoutParams.MATCH_PARENT,

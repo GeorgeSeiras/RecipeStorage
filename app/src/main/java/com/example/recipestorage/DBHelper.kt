@@ -72,6 +72,41 @@ class DatabaseHandler(context: Context) :
         }
     }
 
+    fun updateRecipe(
+        title: String,
+        course: String,
+        origin: String,
+        prepTime: Int,
+        cookTime: Int,
+        originalRecipe: Recipe,
+        db: SQLiteDatabase
+    ): Int {
+        return try {
+            val contentValues = ContentValues()
+
+            contentValues.put(recipeTitle, title)
+            contentValues.put(recipePrepTime, prepTime)
+            contentValues.put(recipeCookTime, cookTime)
+            contentValues.put(recipeCourse, course)
+            contentValues.put(recipeOrigin, origin)
+
+            val oldValues = arrayOf(
+                originalRecipe.title,
+                originalRecipe.prepTime.toString(),
+                originalRecipe.cookTime.toString(),
+                originalRecipe.course,
+                originalRecipe.origin,
+            )
+
+            val table: String = recipeTableName
+            val selectionArgs =
+                "$recipeTitle=? and $recipePrepTime=? and $recipeCookTime=? and $recipeCourse=? and $recipeOrigin=?"
+            db.update(table, contentValues, selectionArgs, oldValues)
+        } catch (e: Exception) {
+            -1
+        }
+    }
+
     private fun populateRecipe(
         cursor: Cursor,
         db: SQLiteDatabase
@@ -315,7 +350,6 @@ class DatabaseHandler(context: Context) :
     }
 
     fun beginTransaction(db: SQLiteDatabase) {
-        val db = this.writableDatabase
         db.beginTransaction()
     }
 

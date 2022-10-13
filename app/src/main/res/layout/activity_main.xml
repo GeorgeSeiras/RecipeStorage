@@ -5,27 +5,32 @@
     android:id="@+id/main_page_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     tools:context=".MainActivity">
 
     <LinearLayout
         android:id="@+id/ll_home_page"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:orientation="vertical"
         android:layout_marginStart="10sp"
         android:layout_marginEnd="10sp"
+        android:background="#FFFFFF"
+        android:backgroundTint="#FFFFFF"
+        android:clickable="false"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:clickable="false">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/ll_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:clickable="false">
+            android:background="#FFFFFF"
+            android:backgroundTint="#FFFFFF"
+            android:clickable="false"
+            android:orientation="vertical">
 
             <EditText
                 android:id="@+id/et_search_title"
@@ -41,8 +46,8 @@
                 android:id="@+id/ll_search_course_origin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:clickable="false">
+                android:clickable="false"
+                android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/et_search_course"
@@ -74,21 +79,22 @@
                 android:layout_weight=".25"
                 android:backgroundTint="#0277BD"
                 android:text="@string/Search"
-                android:textColor="#000000" />
+                android:textColor="#FFFFFF" />
 
         </LinearLayout>
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="#FFFFFF"
             android:clickable="false">
 
             <TableLayout
                 android:id="@+id/tl_recipes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
                 android:layout_marginStart="20sp"
+                android:layout_marginTop="0dp"
                 android:layout_marginEnd="20sp"
                 android:stretchColumns="*">
 
@@ -104,18 +110,18 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toBottomOf="@+id/ll_home_page"
-        app:layout_constraintEnd_toEndOf="@+id/ll_home_page"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/ll_home_page"
+        app:layout_constraintEnd_toEndOf="@+id/ll_home_page">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/new_recipe_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="false"
             android:src="@android:color/transparent"
-            app:backgroundTint="#2E7D32"
-            android:clickable="false" />
+            app:backgroundTint="#2E7D32" />
 
         <TextView
             android:id="@+id/new_recipe_txt"
@@ -125,7 +131,7 @@
             android:elevation="16dp"
             android:text="@string/new_element"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@android:color/black"
+            android:textColor="@color/white"
             android:textSize="40sp" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
