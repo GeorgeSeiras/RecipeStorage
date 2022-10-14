@@ -1,11 +1,11 @@
 package com.example.recipestorage
 
-import android.content.Context
-import android.content.res.Resources
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.text.InputType
 import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -13,26 +13,21 @@ import com.example.recipestorage.models.Ingredient
 import com.example.recipestorage.models.Recipe
 import com.example.recipestorage.models.Step
 
+
 class RecipeViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recipe_view)
 
-        val editButton = findViewById<Button>(R.id.bt_edit)
-        editButton.setOnClickListener {
-            editButtonListener()
-        }
-
-        val deleteButton = findViewById<Button>(R.id.bt_delete)
-        deleteButton.setOnClickListener {
-            deleteButtonListener()
-        }
-
         val db = DatabaseHandler(this)
         val transaction = db.readableDatabase
         val extras: Bundle? = intent.extras
         if (extras != null) {
-            val recipe: Recipe = db.getRecipeById(extras.getInt("recipeId").toLong(), transaction)
+            println(extras.containsKey("message"))
+            if (extras.containsKey("message")) {
+                Toast.makeText(this, extras.get("message").toString(), Toast.LENGTH_LONG).show()
+            }
+            val recipe: Recipe = db.getRecipeById(extras.getLong("recipeId"), transaction)
             db.closeDatabase(transaction)
 
             findViewById<TextView>(R.id.title).text = recipe.title
@@ -46,16 +41,55 @@ class RecipeViewActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.minutes_cook).text = cookTime["m"].toString()
             renderIngredients(recipe.ingredients)
             renderSteps(recipe.steps)
+
+            val editButton = findViewById<Button>(R.id.bt_edit)
+            editButton.setOnClickListener {
+                editButtonListener(recipe.id)
+            }
+
+            val deleteButton = findViewById<Button>(R.id.bt_delete)
+            deleteButton.setOnClickListener {
+                deleteButtonListener(recipe.id, db)
+            }
         }
 
     }
 
-    private fun editButtonListener() {
-
+    private fun editButtonListener(recipeId: Long) {
+        val intent = Intent(this, EditRecipeActivity::class.java)
+        intent.putExtra("recipeId", recipeId)
+        startActivity(intent)
     }
 
-    private fun deleteButtonListener() {
+    private fun deleteButtonListener(recipeId: Long, db: DatabaseHandler) {
+        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupView: View = inflater.inflate(R.layout.popup_deletion_confirmation, null)
 
+        val width = LinearLayout.LayoutParams.WRAP_CONTENT
+        val height = LinearLayout.LayoutParams.WRAP_CONTENT
+        val focusable = true
+
+        val popupWindow = PopupWindow(popupView, width, height, focusable)
+        val parent = findViewById<ScrollView>(R.id.sv_recipe_view)
+        popupWindow.showAtLocation(parent, Gravity.CENTER, 0, 0)
+
+        val cancelButton: Button = popupView.findViewById(R.id.bt_cancel)
+        cancelButton.setOnClickListener {
+            popupWindow.dismiss()
+        }
+        val deleteButton: Button = popupView.findViewById(R.id.bt_delete_confirm)
+        deleteButton.setOnClickListener {
+            val transaction = db.writableDatabase
+            val res = db.removeRecipe(recipeId, transaction)
+            db.closeDatabase(transaction)
+            if (res == 1) {
+                val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("message", "Recipe Successfully Deleted")
+                startActivity(intent)
+            } else if (res == 0) {
+                Toast.makeText(this, "Something Went Wrong...", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun renderIngredients(ingredients: ArrayList<Ingredient>) {
@@ -118,7 +152,7 @@ class RecipeViewActivity : AppCompatActivity() {
                 TableRow.LayoutParams.WRAP_CONTENT
             )
             val indexView = TextView(this)
-            indexView.text = " ${i.toString()}"
+            indexView.text = " $i"
             indexView.setTextColor(Color.parseColor("#000000"))
             indexView.background = border
             indexView.gravity = Gravity.CENTER_HORIZONTAL

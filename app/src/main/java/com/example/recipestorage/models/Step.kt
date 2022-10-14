@@ -1,7 +1,7 @@
 package com.example.recipestorage.models
 
 class Step(
-    var id: Int? = null,
+    var id: Long,
     var step: String,
     var recipeId: Long
 

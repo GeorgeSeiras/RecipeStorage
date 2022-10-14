@@ -2,7 +2,6 @@ package com.example.recipestorage
 
 import android.content.Context
 import android.content.Intent
-import android.database.sqlite.SQLiteDatabase
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
@@ -20,32 +19,9 @@ class EditRecipeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_edit_recipe)
         val db = DatabaseHandler(this)
         val transaction = db.readableDatabase
-
-        //ingredient dynamic table
-        val ingredientButton = findViewById<Button>(R.id.button_ingredient)
-        var rowIdIngredient = 1
-        ingredientButton.setOnClickListener {
-            ingredientButtonListener(this, rowIdIngredient)
-            rowIdIngredient++
-        }
-
-        //step dynamic table
-        val stepButton = findViewById<Button>(R.id.button_step)
-        var rowIdStep = 1
-        stepButton.setOnClickListener {
-            stepButtonListener(this, rowIdStep)
-            rowIdStep++
-        }
-
-        val editButton = findViewById<Button>(R.id.button_edit_recipe)
-        editButton.setOnClickListener {
-            editRecipeListener(db)
-        }
-
-
         val extras: Bundle? = intent.extras
         if (extras != null) {
-            val recipe: Recipe = db.getRecipeById(extras.getInt("recipeId").toLong(), transaction)
+            val recipe: Recipe = db.getRecipeById(extras.getLong("recipeId"), transaction)
             db.closeDatabase(transaction)
             findViewById<EditText>(R.id.title_edit).setText(recipe.title)
             findViewById<EditText>(R.id.course).setText(recipe.course)
@@ -56,149 +32,194 @@ class EditRecipeActivity : AppCompatActivity() {
             val cookTime: HashMap<String, Int> = recipe.getCookTime()
             findViewById<EditText>(R.id.cook_time_h).setText(cookTime["h"].toString())
             findViewById<EditText>(R.id.cook_time_m).setText(cookTime["m"].toString())
-            renderIngredients(recipe.ingredients)
-            renderSteps(recipe.steps)
+            for (ingredient in recipe.ingredients) {
+                addIngredient(
+                    unit = ingredient.unit,
+                    amount = ingredient.amount,
+                    ingredient = ingredient.ingredient
+                )
+            }
+            for (step in recipe.steps) {
+                addStep(step = step.step)
+            }
+
+
+            //ingredient dynamic table
+            val ingredientButton = findViewById<Button>(R.id.button_ingredient)
+            ingredientButton.setOnClickListener {
+                addIngredient()
+            }
+
+            //step dynamic table
+            val stepButton = findViewById<Button>(R.id.button_step)
+            stepButton.setOnClickListener {
+                addStep()
+            }
+
+            val editButton = findViewById<Button>(R.id.button_edit_recipe)
+            editButton.setOnClickListener {
+                editRecipeListener(recipe, db)
+            }
+
 
         }
     }
 
     private fun renderIngredients(ingredients: ArrayList<Ingredient>) {
-        val ingredientTable = findViewById<TableLayout>(R.id.ingredient_table)
-        val border = ResourcesCompat.getDrawable(resources, R.drawable.border, null)
-        for (ingredient in ingredients) {
-            val row = TableRow(this)
-            row.layoutParams = TableRow.LayoutParams(
-                TableRow.LayoutParams.MATCH_PARENT,
-                TableRow.LayoutParams.WRAP_CONTENT,
-            )
-            val amountView = EditText(this)
-            amountView.setText(ingredient.amount)
-            amountView.setTextColor(Color.parseColor("#000000"))
-            amountView.layoutParams = TableRow.LayoutParams(
-                0,
-                TableRow.LayoutParams.WRAP_CONTENT,
-                0.15f,
-            )
-            row.addView(amountView)
 
-            val unitView = EditText(this)
-            unitView.setText(ingredient.unit)
-            unitView.setTextColor(Color.parseColor("#000000"))
-            unitView.layoutParams = TableRow.LayoutParams(
-                0,
-                TableRow.LayoutParams.WRAP_CONTENT,
-                0.15f
-            )
-            row.addView(unitView)
-
-            val ingredientView = EditText(this)
-            ingredientView.setText(ingredient.ingredient)
-            ingredientView.setTextColor(Color.parseColor("#000000"))
-            ingredientView.background = border
-            ingredientView.layoutParams = TableRow.LayoutParams(
-                0,
-                TableRow.LayoutParams.WRAP_CONTENT,
-                0.7f
-            )
-            row.addView(ingredientView)
-
-            ingredientTable.addView(
-                row, TableLayout.LayoutParams(
-                    TableLayout.LayoutParams.MATCH_PARENT,
-                    TableLayout.LayoutParams.WRAP_CONTENT
-                )
-            )
-        }
+//        val ingredientTable = findViewById<TableLayout>(R.id.ingredient_table)
+//        val border = ResourcesCompat.getDrawable(resources, R.drawable.border, null)
+//        for (ingredient in ingredients) {
+//            val row = TableRow(this)
+//            row.layoutParams = TableRow.LayoutParams(
+//                TableRow.LayoutParams.MATCH_PARENT,
+//                TableRow.LayoutParams.WRAP_CONTENT,
+//            )
+//            val amountView = EditText(this)
+//            amountView.setText(" ${ingredient.amount}")
+//            amountView.setTextColor(Color.parseColor("#000000"))
+//            amountView.background = border
+//            amountView.layoutParams = TableRow.LayoutParams(
+//                0,
+//                TableRow.LayoutParams.WRAP_CONTENT,
+//                0.15f,
+//            )
+//            row.addView(amountView)
+//
+//            val unitView = EditText(this)
+//            unitView.setText(" ${ingredient.unit}")
+//            unitView.setTextColor(Color.parseColor("#000000"))
+//            unitView.background = border
+//            unitView.layoutParams = TableRow.LayoutParams(
+//                0,
+//                TableRow.LayoutParams.WRAP_CONTENT,
+//                0.15f
+//            )
+//            row.addView(unitView)
+//
+//            val ingredientView = EditText(this)
+//            ingredientView.setText(" ${ingredient.ingredient}")
+//            ingredientView.setTextColor(Color.parseColor("#000000"))
+//            ingredientView.background = border
+//            ingredientView.layoutParams = TableRow.LayoutParams(
+//                0,
+//                TableRow.LayoutParams.WRAP_CONTENT,
+//                0.7f
+//            )
+//            row.addView(ingredientView)
+//
+//            ingredientTable.addView(
+//                row, TableLayout.LayoutParams(
+//                    TableLayout.LayoutParams.MATCH_PARENT,
+//                    TableLayout.LayoutParams.WRAP_CONTENT
+//                )
+//            )
+//        }
     }
 
     private fun renderSteps(steps: ArrayList<Step>) {
-        val stepTable = findViewById<TableLayout>(R.id.step_table)
-        val border = ResourcesCompat.getDrawable(resources, R.drawable.border, null)
-        for ((i, step) in steps.withIndex()) {
-            val row = TableRow(this)
-            row.layoutParams = TableRow.LayoutParams(
-                TableRow.LayoutParams.MATCH_PARENT,
-                TableRow.LayoutParams.WRAP_CONTENT
-            )
-            val indexView = TextView(this)
-            indexView.text = " ${i.toString()}"
-            indexView.setTextColor(Color.parseColor("#000000"))
-            indexView.background = border
-            indexView.gravity = Gravity.CENTER_HORIZONTAL
-            indexView.layoutParams = TableRow.LayoutParams(
-                0,
-                TableRow.LayoutParams.WRAP_CONTENT,
-                10f
-            )
-            row.addView(indexView)
-            val stepView = EditText(this)
-            stepView.background = border
-            stepView.setTextColor(Color.parseColor("#000000"))
-            stepView.setText(step.step)
-            stepView.maxLines = 10
-            stepView.minLines = 1
-            stepView.isSingleLine = false
-            stepView.layoutParams = TableRow.LayoutParams(
-                0,
-                TableRow.LayoutParams.WRAP_CONTENT,
-                90f
-            )
-            row.addView(stepView)
 
-            stepTable.addView(
-                row, TableLayout.LayoutParams(
-                    TableLayout.LayoutParams.MATCH_PARENT,
-                    TableLayout.LayoutParams.WRAP_CONTENT
-                )
-            )
-        }
+//        val stepTable = findViewById<TableLayout>(R.id.step_table)
+//        val border = ResourcesCompat.getDrawable(resources, R.drawable.border, null)
+//        for ((i, step) in steps.withIndex()) {
+//            val row = TableRow(this)
+//            row.layoutParams = TableRow.LayoutParams(
+//                TableRow.LayoutParams.MATCH_PARENT,
+//                TableRow.LayoutParams.WRAP_CONTENT
+//            )
+//            val indexView = TextView(this)
+//            indexView.text = " $i"
+//            indexView.setTextColor(Color.parseColor("#000000"))
+//            indexView.background = border
+//            indexView.gravity = Gravity.CENTER
+//            indexView.textSize= 16f
+//            indexView.layoutParams = TableRow.LayoutParams(
+//                0,
+//                TableRow.LayoutParams.MATCH_PARENT,
+//                10f
+//            )
+//            row.addView(indexView)
+//            val stepView = EditText(this)
+//            stepView.background = border
+//            stepView.setTextColor(Color.parseColor("#000000"))
+//            stepView.setText(" ${step.step}")
+//            stepView.maxLines = 10
+//            stepView.minLines = 1
+//            stepView.isSingleLine = false
+//            stepView.layoutParams = TableRow.LayoutParams(
+//                0,
+//                TableRow.LayoutParams.WRAP_CONTENT,
+//                90f
+//            )
+//            row.addView(stepView)
+//
+//            stepTable.addView(
+//                row, TableLayout.LayoutParams(
+//                    TableLayout.LayoutParams.MATCH_PARENT,
+//                    TableLayout.LayoutParams.WRAP_CONTENT
+//                )
+//            )
+//        }
     }
 
-    private fun ingredientButtonListener(context: Context, rowIdIngredient: Int) {
+    private fun addIngredient(
+        unit: String? = null,
+        amount: String? = null,
+        ingredient: String? = null
+    ) {
         val ingredientTable = findViewById<TableLayout>(R.id.ingredient_table)
 
-        val tr = TableRow(context)
+        val tr = TableRow(this)
         tr.id = TableRow.generateViewId()
-        tr.tag = "ingredient_table_row_$rowIdIngredient"
         tr.layoutParams = TableRow.LayoutParams(
             TableRow.LayoutParams.MATCH_PARENT,
             TableRow.LayoutParams.WRAP_CONTENT
         )
 
-        val amount = EditText(context)
-        amount.id = TableRow.generateViewId()
-        amount.tag = "amount_$rowIdIngredient"
-        amount.hint = "Amount"
-        amount.setHintTextColor(Color.parseColor("#757575"))
-        amount.inputType = InputType.TYPE_CLASS_TEXT
-        amount.layoutParams = TableRow.LayoutParams(
+        val amountText = EditText(this)
+        amountText.id = TableRow.generateViewId()
+        amountText.hint = "Amount"
+        if (amount != null) {
+            amountText.setText(" $amount")
+        }
+        amountText.setHintTextColor(Color.parseColor("#757575"))
+        amountText.setTextColor(Color.parseColor("#000000"))
+        amountText.inputType = InputType.TYPE_CLASS_TEXT
+        amountText.layoutParams = TableRow.LayoutParams(
             TableRow.LayoutParams.MATCH_PARENT,
             TableRow.LayoutParams.WRAP_CONTENT
         )
-        tr.addView(amount)
+        tr.addView(amountText)
 
-        val unit = EditText(context)
-        unit.id = TableRow.generateViewId()
-        unit.tag = "amount${rowIdIngredient}"
-        unit.hint = "Unit"
-        unit.setHintTextColor(Color.parseColor("#757575"))
-        unit.inputType = InputType.TYPE_CLASS_TEXT
-        unit.layoutParams = TableRow.LayoutParams(
+        val unitText = EditText(this)
+        unitText.id = TableRow.generateViewId()
+        unitText.hint = "Unit"
+        if (unit != null) {
+            unitText.setText(" $unit")
+        }
+        unitText.setHintTextColor(Color.parseColor("#757575"))
+        unitText.setTextColor(Color.parseColor("#000000"))
+        unitText.inputType = InputType.TYPE_CLASS_TEXT
+        unitText.layoutParams = TableRow.LayoutParams(
             TableRow.LayoutParams.MATCH_PARENT,
             TableRow.LayoutParams.WRAP_CONTENT
         )
-        tr.addView(unit)
-        val ingredient = EditText(context)
-        ingredient.id = TableRow.generateViewId()
-        ingredient.tag = "amount${rowIdIngredient}"
-        ingredient.hint = "Ingredient"
-        ingredient.setHintTextColor(Color.parseColor("#757575"))
-        ingredient.inputType = InputType.TYPE_CLASS_TEXT
-        ingredient.layoutParams = TableRow.LayoutParams(
+        tr.addView(unitText)
+
+        val ingredientText = EditText(this)
+        ingredientText.id = TableRow.generateViewId()
+        ingredientText.hint = "Ingredient"
+        if (unit != null) {
+            ingredientText.setText(" $ingredient")
+        }
+        ingredientText.setHintTextColor(Color.parseColor("#757575"))
+        ingredientText.setTextColor(Color.parseColor("#000000"))
+        ingredientText.inputType = InputType.TYPE_CLASS_TEXT
+        ingredientText.layoutParams = TableRow.LayoutParams(
             TableRow.LayoutParams.MATCH_PARENT,
             TableRow.LayoutParams.WRAP_CONTENT
         )
-        tr.addView(ingredient)
+        tr.addView(ingredientText)
 
         ingredientTable.addView(
             tr, TableRow.LayoutParams(
@@ -208,31 +229,33 @@ class EditRecipeActivity : AppCompatActivity() {
         )
     }
 
-    private fun stepButtonListener(context: Context, rowIdStep: Int) {
+    private fun addStep(step: String? = null) {
         val stepTable = findViewById<TableLayout>(R.id.step_table)
 
-        val tr = TableRow(context)
+        val tr = TableRow(this)
         tr.id = TableRow.generateViewId()
-        tr.tag = "step_table_row_$rowIdStep"
         tr.layoutParams = TableRow.LayoutParams(
             TableRow.LayoutParams.MATCH_PARENT,
             TableRow.LayoutParams.WRAP_CONTENT
         )
 
-        val step = EditText(context)
-        step.id = TableRow.generateViewId()
-        step.tag = "step_$rowIdStep"
-        step.hint = "Step"
-        step.maxLines = 10
-        step.minLines = 1
-        step.setHintTextColor(Color.parseColor("#757575"))
-        step.isSingleLine = false
-        step.layoutParams = TableRow.LayoutParams(
+        val stepText = EditText(this)
+        stepText.id = TableRow.generateViewId()
+        stepText.hint = "Step"
+        stepText.maxLines = 10
+        stepText.minLines = 1
+        stepText.setHintTextColor(Color.parseColor("#757575"))
+        if (step != null) {
+            stepText.setText(" $step")
+        }
+        stepText.setTextColor(Color.parseColor("#000000"))
+        stepText.isSingleLine = false
+        stepText.layoutParams = TableRow.LayoutParams(
             TableRow.LayoutParams.MATCH_PARENT,
             TableRow.LayoutParams.WRAP_CONTENT
         )
 
-        tr.addView(step)
+        tr.addView(stepText)
         stepTable.addView(
             tr, TableRow.LayoutParams(
                 TableRow.LayoutParams.MATCH_PARENT,
@@ -241,8 +264,7 @@ class EditRecipeActivity : AppCompatActivity() {
         )
     }
 
-    private fun editRecipeListener(db: DatabaseHandler) {
-        val transaction = db.writableDatabase
+    private fun editRecipeListener(original: Recipe, db: DatabaseHandler) {
         val title = findViewById<EditText>(R.id.title_edit)
         val course = findViewById<EditText>(R.id.course)
         val origin = findViewById<EditText>(R.id.origin)
@@ -270,41 +292,48 @@ class EditRecipeActivity : AppCompatActivity() {
             if (cookTimeM.length() != 0) {
                 cookTime += Integer.parseInt(cookTimeM.text.toString()) * 60
             }
-            val recipeId: Long = db.addRecipe(
+            db.updateRecipe(
                 title = title.text.toString(),
                 course = course.text.toString(),
                 origin = origin.text.toString(),
                 prepTime = prepTime,
                 cookTime = cookTime,
+                originalRecipe = original,
                 transaction
             )
 
+            db.deleteRecipeIngredients(original.id, transaction)
             for (i in 0 until ingredientTable.childCount) {
                 val row = ingredientTable.getChildAt(i) as TableRow
-
                 db.addIngredient(
                     amount = (row.getChildAt(0) as EditText).text.toString(),
                     unit = (row.getChildAt(1) as EditText).text.toString(),
                     ingredient = (row.getChildAt(2) as EditText).text.toString(),
-                    recipeId = recipeId,
+                    recipeId = original.id,
                     db = transaction
                 )
             }
 
+            db.deleteRecipeSteps(original.id, transaction)
             for (i in 0 until stepTable.childCount) {
                 val row = stepTable.getChildAt(i) as TableRow
                 db.addStep(
                     step = (row.getChildAt(0) as EditText).text.toString(),
-                    recipeId = recipeId,
+                    recipeId = original.id,
                     db = transaction
                 )
             }
 
             db.commitTransaction(transaction)
             db.endTransaction(transaction)
+//            println("Transaction finished")
+//            println(db.getRecipeById(id=original.id,transaction))
             db.closeDatabase(transaction)
-//            startActivity(Intent(this, MainActivity::class.java))
 
+            val intent = Intent(this, RecipeViewActivity::class.java)
+            intent.putExtra("message", "Recipe Successfully Updated")
+            intent.putExtra("recipeId", original.id)
+            startActivity(intent)
         }
     }
 

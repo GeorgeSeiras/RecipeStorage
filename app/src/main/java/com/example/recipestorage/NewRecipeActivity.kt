@@ -198,7 +198,9 @@ class NewRecipeActivity : AppCompatActivity() {
             db.commitTransaction(transaction)
             db.endTransaction(transaction)
             db.closeDatabase(transaction)
-            startActivity(Intent(this, MainActivity::class.java))
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("message", "Recipe Successfully Created")
+            startActivity(intent)
 
         }
 

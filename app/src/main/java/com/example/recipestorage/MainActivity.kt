@@ -5,12 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.TableRow
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.marginStart
 import com.example.recipestorage.models.Recipe
@@ -21,6 +16,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val db = DatabaseHandler(this)
 
+        val extras: Bundle? = intent.extras
+        if (extras != null) {
+            if (extras.containsKey("message")) {
+                Toast.makeText(this, extras.get("message").toString(), Toast.LENGTH_LONG).show()
+            }
+        }
         val newRecipeButton: FrameLayout = findViewById(R.id.fl_new_recipe_redirect)
         newRecipeButton.setOnClickListener {
             startActivity(Intent(this, NewRecipeActivity::class.java))

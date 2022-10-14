@@ -72,6 +72,16 @@ class DatabaseHandler(context: Context) :
         }
     }
 
+    fun removeRecipe(
+        id: Long,
+        db: SQLiteDatabase
+    ): Int {
+        val tableName = recipeTableName
+        val whereArgs = "$recipeId = ?"
+        val whereClause = arrayOf("$id")
+        return db.delete(tableName, whereArgs, whereClause)
+    }
+
     fun updateRecipe(
         title: String,
         course: String,
@@ -90,18 +100,13 @@ class DatabaseHandler(context: Context) :
             contentValues.put(recipeCourse, course)
             contentValues.put(recipeOrigin, origin)
 
-            val oldValues = arrayOf(
-                originalRecipe.title,
-                originalRecipe.prepTime.toString(),
-                originalRecipe.cookTime.toString(),
-                originalRecipe.course,
-                originalRecipe.origin,
-            )
-
             val table: String = recipeTableName
-            val selectionArgs =
-                "$recipeTitle=? and $recipePrepTime=? and $recipeCookTime=? and $recipeCourse=? and $recipeOrigin=?"
-            db.update(table, contentValues, selectionArgs, oldValues)
+            db.update(
+                table,
+                contentValues,
+                "$recipeId = ?",
+                arrayOf(originalRecipe.id.toString())
+            )
         } catch (e: Exception) {
             -1
         }
@@ -113,7 +118,7 @@ class DatabaseHandler(context: Context) :
     ): Recipe {
 
         return Recipe(
-            id = cursor.getInt(cursor.getColumnIndexOrThrow(recipeId)),
+            id = cursor.getLong(cursor.getColumnIndexOrThrow(recipeId)),
             title = cursor.getString(cursor.getColumnIndexOrThrow(recipeTitle)),
             prepTime = cursor.getInt(cursor.getColumnIndexOrThrow(recipePrepTime)),
             cookTime = cursor.getInt(cursor.getColumnIndexOrThrow(recipeCookTime)),
@@ -203,7 +208,7 @@ class DatabaseHandler(context: Context) :
 
     private fun populateStep(cursor: Cursor): Step {
         try {
-            val id: Int = cursor.getInt(cursor.getColumnIndexOrThrow(stepId))
+            val id: Long = cursor.getLong(cursor.getColumnIndexOrThrow(stepId))
             val step: String = cursor.getString(cursor.getColumnIndexOrThrow(stepStep))
             val recipeId: Long = cursor.getLong(cursor.getColumnIndexOrThrow(stepRecipeId))
             return Step(id = id, step = step, recipeId = recipeId)
@@ -224,6 +229,13 @@ class DatabaseHandler(context: Context) :
         contentValues.put(stepRecipeId, recipeId)
 
         return db.insertOrThrow(stepTableName, null, contentValues)
+    }
+
+    fun deleteRecipeSteps(
+        id: Long,
+        db: SQLiteDatabase
+    ): Int {
+        return db.delete(stepTableName, "$stepRecipeId=?", arrayOf("$id"))
     }
 
     fun addSteps(steps: ArrayList<Step>, db: SQLiteDatabase): ArrayList<Long> {
@@ -308,6 +320,13 @@ class DatabaseHandler(context: Context) :
         return results
     }
 
+    fun deleteRecipeIngredients(
+        id: Long,
+        db: SQLiteDatabase
+    ): Int {
+        return db.delete(ingredientTableName, "$ingredientRecipeId=?", arrayOf("$id"))
+    }
+
     private fun getRecipeIngredients(id: Long, db: SQLiteDatabase): ArrayList<Ingredient> {
         val table = ingredientTableName
         val columns = null
@@ -331,7 +350,7 @@ class DatabaseHandler(context: Context) :
 
     private fun populateIngredient(cursor: Cursor): Ingredient {
         try {
-            val id: Int = cursor.getInt(cursor.getColumnIndexOrThrow(stepId))
+            val id: Long = cursor.getLong(cursor.getColumnIndexOrThrow(stepId))
             val amount: String = cursor.getString(cursor.getColumnIndexOrThrow(ingredientAmount))
             val unit: String = cursor.getString(cursor.getColumnIndexOrThrow(ingredientUnit))
             val ingredient: String =

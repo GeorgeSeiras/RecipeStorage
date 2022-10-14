@@ -1,7 +1,7 @@
 package com.example.recipestorage.models
 
 class Ingredient(
-    var id: Int,
+    var id: Long,
     var unit: String,
     var amount: String,
     var ingredient: String,

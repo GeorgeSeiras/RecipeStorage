@@ -1,7 +1,7 @@
 package com.example.recipestorage.models
 
 class Recipe(
-    var id: Int,
+    var id: Long,
     var title: String,
     var prepTime: Int,
     var cookTime: Int,

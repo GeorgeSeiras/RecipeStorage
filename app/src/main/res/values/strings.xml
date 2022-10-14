@@ -25,5 +25,6 @@
     <string name="delete">DELETE</string>
     <string name="ingredients">Ingredients :</string>
     <string name="steps">Steps :</string>
-    <string name="edit_recipe">EDIT_RECIPE</string>
+    <string name="edit_recipe">EDIT RECIPE</string>
+    <string name="delete_warning">Are you sure you want to delete this recipe? \nThis action is not reversible.</string>
 </resources>

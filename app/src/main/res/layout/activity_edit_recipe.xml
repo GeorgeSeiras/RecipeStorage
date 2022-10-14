@@ -19,9 +19,11 @@
             android:layout_marginTop="30dp"
             android:layout_marginEnd="80dp"
             android:autofillHints=""
+            android:backgroundTint="#000000"
             android:hint="@string/Title"
             android:inputType="text"
-            android:textColorHint="#2E7D32"
+            android:textColor="#000000"
+            android:textColorHint="#757575"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -34,8 +36,10 @@
             android:layout_marginTop="25dp"
             android:layout_marginEnd="80dp"
             android:autofillHints=""
+            android:backgroundTint="#000000"
             android:hint="@string/Course"
             android:inputType="text"
+            android:textColor="#000000"
             android:textColorHint="#757575"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -49,8 +53,10 @@
             android:layout_marginTop="25dp"
             android:layout_marginEnd="80dp"
             android:autofillHints=""
+            android:backgroundTint="#000000"
             android:hint="@string/Origin"
             android:inputType="text"
+            android:textColor="#000000"
             android:textColorHint="#757575"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -86,8 +92,10 @@
                     android:layout_width="15dp"
                     android:layout_height="match_parent"
                     android:autofillHints=""
+                    android:backgroundTint="#000000"
                     android:hint=""
                     android:inputType="number"
+                    android:textColor="#000000"
                     android:textColorHint="#757575" />
 
                 <TextView
@@ -104,8 +112,10 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:autofillHints=""
+                    android:backgroundTint="#000000"
                     android:hint=""
                     android:inputType="number"
+                    android:textColor="#000000"
                     android:textColorHint="#757575" />
 
                 <TextView
@@ -150,8 +160,10 @@
                     android:layout_width="15dp"
                     android:layout_height="match_parent"
                     android:autofillHints=""
+                    android:backgroundTint="#000000"
                     android:hint=""
                     android:inputType="number"
+                    android:textColor="#000000"
                     android:textColorHint="#757575" />
 
                 <TextView
@@ -168,8 +180,10 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:autofillHints=""
+                    android:backgroundTint="#000000"
                     android:hint=""
                     android:inputType="number"
+                    android:textColor="#000000"
                     android:textColorHint="#757575" />
 
                 <TextView
