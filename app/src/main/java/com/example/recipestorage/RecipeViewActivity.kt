@@ -83,7 +83,7 @@ class RecipeViewActivity : AppCompatActivity() {
             val res = db.removeRecipe(recipeId, transaction)
             db.closeDatabase(transaction)
             if (res == 1) {
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, HomePageActivity::class.java)
                 intent.putExtra("message", "Recipe Successfully Deleted")
                 startActivity(intent)
             } else if (res == 0) {

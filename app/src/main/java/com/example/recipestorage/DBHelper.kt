@@ -9,24 +9,27 @@ import android.util.Log
 import com.example.recipestorage.models.Ingredient
 import com.example.recipestorage.models.Recipe
 import com.example.recipestorage.models.Step
+import com.example.recipestorage.models.User
 
 class DatabaseHandler(context: Context) :
     SQLiteOpenHelper(context, databaseName, null, databaseVersion) {
     companion object {
         private val databaseVersion = 1
-        private val databaseName = "EmployeeDatabase"
+        private val databaseName = "RecipeDatabase"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(recipeCreateQuery)
         db.execSQL(stepCreateQuery)
         db.execSQL(ingredientCreateQuery)
+        db.execSQL(userCreateQuery)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS $recipeTableName")
         db.execSQL("DROP TABLE IF EXISTS $stepTableName")
         db.execSQL("DROP TABLE IF EXISTS $ingredientTableName")
+        db.execSQL("DROP TABLE IF EXISTS $userTableName")
         onCreate(db)
     }
 
@@ -214,7 +217,7 @@ class DatabaseHandler(context: Context) :
             return Step(id = id, step = step, recipeId = recipeId)
         } catch (e: Exception) {
             Log.e("ERROR", e.toString())
-            throw Exception("Error while retrieving origins")
+            throw Exception("Error while retrieving steps")
         }
     }
 
@@ -364,8 +367,121 @@ class DatabaseHandler(context: Context) :
                 recipeId = recipeId
             )
         } catch (e: Exception) {
-            throw Exception("Error while retrieving origins")
+            throw Exception("Error while retrieving ingredients")
         }
+    }
+
+    //USER TABLE
+    private val userTableName = "user"
+    private val userId = "id"
+    private val userEmail = "email"
+    private val userToken = "token"
+    private val userImageUrl = "imageUrl"
+    private val userCreateQuery = ("create table if not exists " + userTableName + " ("
+            + userId + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + userEmail + " TEXT,"
+            + userToken + " TEXT,"
+            + userImageUrl + " TEXT"
+            + ");")
+
+    fun addUser(
+        email: String,
+        token: String,
+        imageUrl: String,
+    ): Long {
+        val db = writableDatabase
+        val contentValues = ContentValues()
+
+        contentValues.put(userEmail, email)
+        contentValues.put(userToken, token)
+        contentValues.put(userImageUrl, imageUrl)
+
+        return db.insert(userTableName, null, contentValues)
+    }
+
+    fun updateUser(
+        email: String? = null,
+        token: String? = null,
+        imageUrl: String? = null,
+        originalUser: User
+    ): Int {
+        return try {
+            val db = writableDatabase
+            val contentValues = ContentValues()
+
+            if (email != null) {
+                contentValues.put(userEmail, email)
+            }
+            if (token != null) {
+                contentValues.put(userToken, token)
+            }
+            if (imageUrl != null) {
+                contentValues.put(userToken, token)
+            }
+
+            val table: String = userTableName
+            db.update(
+                table,
+                contentValues,
+                "$userId = ?",
+                arrayOf(originalUser.id.toString())
+            )
+        } catch (e: Exception) {
+            -1
+        }
+    }
+
+    private fun populateUser(cursor: Cursor): User {
+        try {
+            val id: Long = cursor.getLong(cursor.getColumnIndexOrThrow(userId))
+            val email: String = cursor.getString(cursor.getColumnIndexOrThrow(userEmail))
+            val token: String = cursor.getString(cursor.getColumnIndexOrThrow(userToken))
+            val imageUrl: String = cursor.getString(cursor.getColumnIndexOrThrow(userImageUrl))
+            return User(
+                id = id,
+                email = email,
+                token = token,
+                imageUrl = imageUrl
+            )
+        } catch (e: Exception) {
+            throw Exception("Error while retrieving user")
+        }
+    }
+
+    fun getUserById(id: Long): User? {
+        val db = readableDatabase
+        val table = userTableName
+        val columns = null
+        val selection = "$userId = ?"
+        val selectionArgs: Array<String> = arrayOf("$id")
+        val groupBy: String? = null
+        val having: String? = null
+        val orderBy = null
+        val limit = null
+        val cursor: Cursor =
+            db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)
+        if (cursor.moveToFirst()) {
+            return populateUser(cursor)
+        }
+        return null
+    }
+
+    fun getUserByEmail(email: String): User? {
+        val db = readableDatabase
+        val table = userTableName
+        val columns = null
+        val selection = "$userEmail = ?"
+        val selectionArgs: Array<String> = arrayOf("$email")
+        val groupBy: String? = null
+        val having: String? = null
+        val orderBy = null
+        val limit = null
+        val cursor: Cursor =
+            db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)
+        if (cursor.moveToFirst()) {
+            return populateUser(cursor)
+        }
+        return null
     }
 
     fun beginTransaction(db: SQLiteDatabase) {
