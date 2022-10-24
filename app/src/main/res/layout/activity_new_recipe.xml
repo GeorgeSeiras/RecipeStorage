@@ -208,11 +208,13 @@
             <TableRow
                 android:id="@+id/ingredient_table_row_0"
                 android:layout_width="wrap_content"
+                android:weightSum="1"
                 android:layout_height="fill_parent">
 
                 <EditText
                     android:id="@+id/amount_0"
-                    android:layout_width="70dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.2"
                     android:layout_height="match_parent"
                     android:autofillHints=""
                     android:backgroundTint="#000000"
@@ -223,7 +225,8 @@
 
                 <EditText
                     android:id="@+id/unit_0"
-                    android:layout_width="50dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.1"
                     android:layout_height="match_parent"
                     android:autofillHints=""
                     android:backgroundTint="#000000"
@@ -234,7 +237,8 @@
 
                 <EditText
                     android:id="@+id/ingredient_0"
-                    android:layout_width="290dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.7"
                     android:layout_height="match_parent"
                     android:autofillHints=""
                     android:backgroundTint="#000000"

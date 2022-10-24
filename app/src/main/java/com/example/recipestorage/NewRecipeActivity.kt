@@ -2,13 +2,19 @@ package com.example.recipestorage
 
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
+import android.graphics.Color
 import android.graphics.Color.parseColor
+import android.os.Bundle
 import android.text.InputType.TYPE_CLASS_TEXT
+import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.*
 import android.widget.TableRow.LayoutParams
 import android.widget.TableRow.generateViewId
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 
 class NewRecipeActivity : AppCompatActivity() {
@@ -48,6 +54,7 @@ class NewRecipeActivity : AppCompatActivity() {
         val tr = TableRow(context)
         tr.id = generateViewId()
         tr.tag = "ingredient_table_row_$rowIdIngredient"
+        tr.weightSum = 1f
         tr.layoutParams = LayoutParams(
             LayoutParams.MATCH_PARENT,
             LayoutParams.WRAP_CONTENT
@@ -62,8 +69,9 @@ class NewRecipeActivity : AppCompatActivity() {
         amount.background.setTint(parseColor("#000000"))
         amount.inputType = TYPE_CLASS_TEXT
         amount.layoutParams = LayoutParams(
-            LayoutParams.MATCH_PARENT,
-            LayoutParams.WRAP_CONTENT
+            0,
+            LayoutParams.WRAP_CONTENT,
+            0.2f
         )
         tr.addView(amount)
 
@@ -76,10 +84,12 @@ class NewRecipeActivity : AppCompatActivity() {
         unit.background.setTint(parseColor("#000000"))
         unit.inputType = TYPE_CLASS_TEXT
         unit.layoutParams = LayoutParams(
-            LayoutParams.MATCH_PARENT,
-            LayoutParams.WRAP_CONTENT
+            0,
+            LayoutParams.WRAP_CONTENT,
+            0.1f
         )
         tr.addView(unit)
+
         val ingredient = EditText(context)
         ingredient.id = generateViewId()
         ingredient.tag = "amount${rowIdIngredient}"
@@ -89,15 +99,29 @@ class NewRecipeActivity : AppCompatActivity() {
         ingredient.background.setTint(parseColor("#000000"))
         ingredient.inputType = TYPE_CLASS_TEXT
         ingredient.layoutParams = LayoutParams(
+            0,
             LayoutParams.MATCH_PARENT,
-            LayoutParams.WRAP_CONTENT
+            0.5f
         )
         tr.addView(ingredient)
+
+        val btn = Button(context)
+        btn.text = "X"
+        btn.background.setTint(parseColor("#C62828"))
+        btn.layoutParams = LayoutParams(
+            0,
+            LayoutParams.MATCH_PARENT,
+            0.1f
+        )
+        btn.setOnClickListener {
+            ingredientTable.removeView(tr)
+        }
+        tr.addView(btn)
 
         ingredientTable.addView(
             tr, LayoutParams(
                 LayoutParams.MATCH_PARENT,
-                LayoutParams.WRAP_CONTENT
+                LayoutParams.MATCH_PARENT
             )
         )
     }
@@ -127,6 +151,18 @@ class NewRecipeActivity : AppCompatActivity() {
             LayoutParams.MATCH_PARENT,
             LayoutParams.WRAP_CONTENT
         )
+        val btn = Button(context)
+        btn.text = "X"
+        btn.background.setTint(parseColor("#C62828"))
+        btn.layoutParams = LayoutParams(
+            0,
+            LayoutParams.MATCH_PARENT,
+            0.1f
+        )
+        btn.setOnClickListener {
+            stepTable.removeView(tr)
+        }
+        tr.addView(btn)
 
         tr.addView(step)
         stepTable.addView(
@@ -197,6 +233,12 @@ class NewRecipeActivity : AppCompatActivity() {
 
             db.commitTransaction(transaction)
             db.endTransaction(transaction)
+
+            val driveHandler = GoogleDriveHandler(
+                this,
+                GoogleSignIn.getLastSignedInAccount(this)
+            )
+            driveHandler.syncDb(this)
             db.closeDatabase(transaction)
             val intent = Intent(this, HomePageActivity::class.java)
             intent.putExtra("message", "Recipe Successfully Created")
@@ -205,6 +247,31 @@ class NewRecipeActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    private fun deleteRowPopup(row: TableRow, table: TableLayout): Boolean {
+        Log.v("TEST", "LONG PRESS")
+        val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupView: View = inflater.inflate(R.layout.popup_deletion_confirmation, null)
+
+        val width = LinearLayout.LayoutParams.WRAP_CONTENT
+        val height = LinearLayout.LayoutParams.WRAP_CONTENT
+        val focusable = true
+
+        val popupWindow = PopupWindow(popupView, width, height, focusable)
+        val parent = findViewById<ScrollView>(R.id.sv_recipe_view)
+        popupWindow.showAtLocation(parent, Gravity.CENTER, 0, 0)
+
+        val cancelButton: Button = popupView.findViewById(R.id.bt_cancel)
+        cancelButton.setOnClickListener {
+            popupWindow.dismiss()
+        }
+        val deleteButton: Button = popupView.findViewById(R.id.bt_delete_confirm)
+        deleteButton.setOnClickListener {
+            table.removeView(row)
+            popupWindow.dismiss()
+        }
+        return true
     }
 
     private fun fieldValidation(): Boolean {

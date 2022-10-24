@@ -5,13 +5,12 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
-import android.view.Gravity
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.res.ResourcesCompat
-import com.example.recipestorage.models.Ingredient
 import com.example.recipestorage.models.Recipe
-import com.example.recipestorage.models.Step
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
 class EditRecipeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,50 +31,51 @@ class EditRecipeActivity : AppCompatActivity() {
             val cookTime: HashMap<String, Int> = recipe.getCookTime()
             findViewById<EditText>(R.id.cook_time_h).setText(cookTime["h"].toString())
             findViewById<EditText>(R.id.cook_time_m).setText(cookTime["m"].toString())
-            for (ingredient in recipe.ingredients) {
+            recipe.ingredients.forEachIndexed { index, ingredient ->
                 addIngredient(
                     unit = ingredient.unit,
                     amount = ingredient.amount,
-                    ingredient = ingredient.ingredient
+                    index = index
                 )
             }
-            for (step in recipe.steps) {
-                addStep(step = step.step)
+            recipe.steps.forEachIndexed { index, step ->
+                addStep(step = step.step, index = index)
             }
 
 
             //ingredient dynamic table
             val ingredientButton = findViewById<Button>(R.id.button_ingredient)
+            val ingredientTable = findViewById<TableLayout>(R.id.ingredient_table)
             ingredientButton.setOnClickListener {
-                addIngredient()
+                addIngredient(index = ingredientTable.childCount)
             }
 
             //step dynamic table
             val stepButton = findViewById<Button>(R.id.button_step)
+            val stepTable = findViewById<TableLayout>(R.id.step_table)
             stepButton.setOnClickListener {
-                addStep()
+                addStep(index = stepTable.childCount)
             }
 
             val editButton = findViewById<Button>(R.id.button_edit_recipe)
             editButton.setOnClickListener {
-                editRecipeListener(recipe, db)
+                editRecipeListener(recipe, db, this, GoogleSignIn.getLastSignedInAccount(this))
             }
-
-
         }
     }
-
 
 
     private fun addIngredient(
         unit: String? = null,
         amount: String? = null,
-        ingredient: String? = null
+        ingredient: String? = null,
+        index: Int
     ) {
         val ingredientTable = findViewById<TableLayout>(R.id.ingredient_table)
 
         val tr = TableRow(this)
         tr.id = TableRow.generateViewId()
+        tr.weightSum = 1f
         tr.layoutParams = TableRow.LayoutParams(
             TableRow.LayoutParams.MATCH_PARENT,
             TableRow.LayoutParams.WRAP_CONTENT
@@ -92,8 +92,9 @@ class EditRecipeActivity : AppCompatActivity() {
         amountText.background.setTint(Color.parseColor("#000000"))
         amountText.inputType = InputType.TYPE_CLASS_TEXT
         amountText.layoutParams = TableRow.LayoutParams(
-            TableRow.LayoutParams.MATCH_PARENT,
-            TableRow.LayoutParams.WRAP_CONTENT
+            0,
+            TableLayout.LayoutParams.WRAP_CONTENT,
+            0.2f
         )
         tr.addView(amountText)
 
@@ -108,8 +109,9 @@ class EditRecipeActivity : AppCompatActivity() {
         unitText.background.setTint(Color.parseColor("#000000"))
         unitText.inputType = InputType.TYPE_CLASS_TEXT
         unitText.layoutParams = TableRow.LayoutParams(
-            TableRow.LayoutParams.MATCH_PARENT,
-            TableRow.LayoutParams.WRAP_CONTENT
+            0,
+            TableRow.LayoutParams.WRAP_CONTENT,
+            0.1f
         )
         tr.addView(unitText)
 
@@ -124,11 +126,26 @@ class EditRecipeActivity : AppCompatActivity() {
         ingredientText.background.setTint(Color.parseColor("#000000"))
         ingredientText.inputType = InputType.TYPE_CLASS_TEXT
         ingredientText.layoutParams = TableRow.LayoutParams(
-            TableRow.LayoutParams.MATCH_PARENT,
-            TableRow.LayoutParams.WRAP_CONTENT
+            0,
+            TableRow.LayoutParams.WRAP_CONTENT,
+            0.5f
         )
         tr.addView(ingredientText)
 
+        if (index > 0) {
+            val btn = Button(this)
+            btn.text = "X"
+            btn.background.setTint(Color.parseColor("#C62828"))
+            btn.layoutParams = TableRow.LayoutParams(
+                0,
+                TableRow.LayoutParams.MATCH_PARENT,
+                0.1f
+            )
+            btn.setOnClickListener {
+                ingredientTable.removeView(tr)
+            }
+            tr.addView(btn)
+        }
         ingredientTable.addView(
             tr, TableRow.LayoutParams(
                 TableRow.LayoutParams.MATCH_PARENT,
@@ -137,14 +154,15 @@ class EditRecipeActivity : AppCompatActivity() {
         )
     }
 
-    private fun addStep(step: String? = null) {
+    private fun addStep(step: String? = null, index: Int) {
         val stepTable = findViewById<TableLayout>(R.id.step_table)
 
         val tr = TableRow(this)
         tr.id = TableRow.generateViewId()
+        tr.weightSum = 1f
         tr.layoutParams = TableRow.LayoutParams(
-            TableRow.LayoutParams.MATCH_PARENT,
-            TableRow.LayoutParams.WRAP_CONTENT
+            TableLayout.LayoutParams.MATCH_PARENT,
+            TableLayout.LayoutParams.WRAP_CONTENT
         )
 
         val stepText = EditText(this)
@@ -160,11 +178,25 @@ class EditRecipeActivity : AppCompatActivity() {
         stepText.background.setTint(Color.parseColor("#000000"))
         stepText.isSingleLine = false
         stepText.layoutParams = TableRow.LayoutParams(
-            TableRow.LayoutParams.MATCH_PARENT,
-            TableRow.LayoutParams.WRAP_CONTENT
+            0,
+            TableRow.LayoutParams.WRAP_CONTENT,
+            0.8f
         )
-
         tr.addView(stepText)
+        if (index > 0) {
+            val btn = Button(this)
+            btn.text = "X"
+            btn.background.setTint(Color.parseColor("#C62828"))
+            btn.layoutParams = TableRow.LayoutParams(
+                0,
+                TableLayout.LayoutParams.MATCH_PARENT,
+                0.1f
+            )
+            btn.setOnClickListener {
+                stepTable.removeView(tr)
+            }
+            tr.addView(btn)
+        }
         stepTable.addView(
             tr, TableRow.LayoutParams(
                 TableRow.LayoutParams.MATCH_PARENT,
@@ -173,7 +205,10 @@ class EditRecipeActivity : AppCompatActivity() {
         )
     }
 
-    private fun editRecipeListener(original: Recipe, db: DatabaseHandler) {
+    private fun editRecipeListener(
+        original: Recipe, db: DatabaseHandler, context: Context,
+        account: GoogleSignInAccount?
+    ) {
         val title = findViewById<EditText>(R.id.title_edit)
         val course = findViewById<EditText>(R.id.course)
         val origin = findViewById<EditText>(R.id.origin)
@@ -210,7 +245,6 @@ class EditRecipeActivity : AppCompatActivity() {
                 originalRecipe = original,
                 transaction
             )
-
             db.deleteRecipeIngredients(original.id, transaction)
             for (i in 0 until ingredientTable.childCount) {
                 val row = ingredientTable.getChildAt(i) as TableRow
@@ -235,8 +269,17 @@ class EditRecipeActivity : AppCompatActivity() {
 
             db.commitTransaction(transaction)
             db.endTransaction(transaction)
+
+//          sync db with drive
+            val driveHandler = GoogleDriveHandler(
+                context,
+                account
+            )
+
+            driveHandler.syncDb(context)
             db.closeDatabase(transaction)
 
+            //return to home page with success toast
             val intent = Intent(this, RecipeViewActivity::class.java)
             intent.putExtra("message", "Recipe Successfully Updated")
             intent.putExtra("recipeId", original.id)
