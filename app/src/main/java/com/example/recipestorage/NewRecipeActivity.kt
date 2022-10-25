@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Color.parseColor
+import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType.TYPE_CLASS_TEXT
 import android.util.Log
@@ -234,11 +236,22 @@ class NewRecipeActivity : AppCompatActivity() {
             db.commitTransaction(transaction)
             db.endTransaction(transaction)
 
-            val driveHandler = GoogleDriveHandler(
-                this,
-                GoogleSignIn.getLastSignedInAccount(this)
-            )
-            driveHandler.syncDb(this)
+            val cm = this.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+            var isConnected: Boolean = false
+            isConnected = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                cm.getActiveNetwork() != null && cm.getNetworkCapabilities(cm.getActiveNetwork()) != null;
+            } else {
+                cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo()!!
+                    .isConnectedOrConnecting();
+            }
+            if (isConnected) {
+                val driveHandler = GoogleDriveHandler(
+                    this,
+                    GoogleSignIn.getLastSignedInAccount(this)
+                )
+                driveHandler.syncDb(this)
+            }
+
             db.closeDatabase(transaction)
             val intent = Intent(this, HomePageActivity::class.java)
             intent.putExtra("message", "Recipe Successfully Created")

@@ -6,10 +6,8 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import com.example.recipestorage.models.Ingredient
-import com.example.recipestorage.models.Recipe
-import com.example.recipestorage.models.Step
-import com.example.recipestorage.models.User
+import com.example.recipestorage.models.*
+import java.util.*
 
 class DatabaseHandler(context: Context) :
     SQLiteOpenHelper(context, databaseName, null, databaseVersion) {
@@ -19,16 +17,29 @@ class DatabaseHandler(context: Context) :
     }
 
     override fun onCreate(db: SQLiteDatabase) {
+        db.execSQL(userCreateQuery)
+        db.execSQL(tokenCreateQuery)
         db.execSQL(recipeCreateQuery)
         db.execSQL(stepCreateQuery)
         db.execSQL(ingredientCreateQuery)
-        db.execSQL(userCreateQuery)
+        db.execSQL(lModifiedCreateQuery)
+
+        val cursor: Cursor =
+            db.query(lModifiedTableName, null, null, arrayOf(), null, null, null, null)
+        if (!cursor.moveToFirst()) {
+            val contentValues = ContentValues()
+            contentValues.put(lModifiedLastModified, 0)
+            db.insert(lModifiedTableName, null, contentValues)
+            cursor.close()
+        }
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS $recipeTableName")
         db.execSQL("DROP TABLE IF EXISTS $stepTableName")
         db.execSQL("DROP TABLE IF EXISTS $ingredientTableName")
+        db.execSQL("DROP TABLE IF EXISTS $lModifiedTableName")
+        db.execSQL("DROP TABLE IF EXISTS $tokenTableName")
         db.execSQL("DROP TABLE IF EXISTS $userTableName")
         onCreate(db)
     }
@@ -60,7 +71,7 @@ class DatabaseHandler(context: Context) :
         cookTime: Int,
         db: SQLiteDatabase
     ): Long {
-        return try {
+        try {
             val contentValues = ContentValues()
 
             contentValues.put(recipeTitle, title)
@@ -69,9 +80,11 @@ class DatabaseHandler(context: Context) :
             contentValues.put(recipeCourse, course)
             contentValues.put(recipeOrigin, origin)
 
-            db.insert(recipeTableName, null, contentValues)
+            val res = db.insert(recipeTableName, null, contentValues)
+            updateLModified()
+            return res
         } catch (e: Exception) {
-            -1
+            return -1
         }
     }
 
@@ -94,7 +107,7 @@ class DatabaseHandler(context: Context) :
         originalRecipe: Recipe,
         db: SQLiteDatabase
     ): Int {
-        return try {
+        try {
             val contentValues = ContentValues()
 
             contentValues.put(recipeTitle, title)
@@ -104,14 +117,16 @@ class DatabaseHandler(context: Context) :
             contentValues.put(recipeOrigin, origin)
 
             val table: String = recipeTableName
-            db.update(
+            val res = db.update(
                 table,
                 contentValues,
                 "$recipeId = ?",
                 arrayOf(originalRecipe.id.toString())
             )
+            updateLModified()
+            return res
         } catch (e: Exception) {
-            -1
+            return -1
         }
     }
 
@@ -206,7 +221,7 @@ class DatabaseHandler(context: Context) :
             + stepId + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + stepStep + " TEXT NOT NULL,"
             + stepRecipeId + " INTEGER NOT NULL,"
-            + " foreign key($stepRecipeId) references recipe($recipeId)"
+            + " foreign key($stepRecipeId) references recipe($recipeId) ON DELETE CASCADE"
             + ");")
 
     private fun populateStep(cursor: Cursor): Step {
@@ -231,7 +246,8 @@ class DatabaseHandler(context: Context) :
         contentValues.put(stepStep, step)
         contentValues.put(stepRecipeId, recipeId)
 
-        return db.insertOrThrow(stepTableName, null, contentValues)
+        val res = db.insertOrThrow(stepTableName, null, contentValues)
+        return res
     }
 
     fun deleteRecipeSteps(
@@ -250,10 +266,6 @@ class DatabaseHandler(context: Context) :
             results.add(db.insertOrThrow(stepTableName, null, contentValues))
         }
         return results
-    }
-
-    fun removeStep(id: Long, db: SQLiteDatabase): Int {
-        return db.delete(stepTableName, "$stepId=?", arrayOf("$id"))
     }
 
     private fun getRecipeSteps(id: Long, db: SQLiteDatabase): ArrayList<Step> {
@@ -290,7 +302,7 @@ class DatabaseHandler(context: Context) :
             + ingredientUnit + " TEXT,"
             + ingredientIngredient + " TEXT NOT NULL,"
             + ingredientRecipeId + " INTEGER NOT NULL,"
-            + " foreign key($ingredientRecipeId) references recipe($recipeId)"
+            + " foreign key($ingredientRecipeId) references recipe($recipeId) ON DELETE CASCADE"
             + ");")
 
     fun addIngredient(
@@ -307,7 +319,8 @@ class DatabaseHandler(context: Context) :
         contentValues.put(ingredientIngredient, ingredient)
         contentValues.put(ingredientRecipeId, recipeId)
 
-        return db.insert(ingredientTableName, null, contentValues)
+        val res = db.insert(ingredientTableName, null, contentValues)
+        return res
     }
 
     fun addIngredients(ingredients: ArrayList<Ingredient>, db: SQLiteDatabase): ArrayList<Long> {
@@ -320,6 +333,7 @@ class DatabaseHandler(context: Context) :
             contentValues.put(ingredientRecipeId, ingredient.recipeId)
             results.add(db.insertOrThrow(ingredientTableName, null, contentValues))
         }
+        updateLModified()
         return results
     }
 
@@ -327,7 +341,8 @@ class DatabaseHandler(context: Context) :
         id: Long,
         db: SQLiteDatabase
     ): Int {
-        return db.delete(ingredientTableName, "$ingredientRecipeId=?", arrayOf("$id"))
+        val res = db.delete(ingredientTableName, "$ingredientRecipeId=?", arrayOf("$id"))
+        return res
     }
 
     private fun getRecipeIngredients(id: Long, db: SQLiteDatabase): ArrayList<Ingredient> {
@@ -371,89 +386,21 @@ class DatabaseHandler(context: Context) :
         }
     }
 
-    //USER TABLE
-    private val userTableName = "user"
-    private val userId = "id"
-    private val userEmail = "email"
-    private val userToken = "token"
-    private val userImageUrl = "imageUrl"
-    private val userCreateQuery = ("create table if not exists " + userTableName + " ("
-            + userId + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + userEmail + " TEXT,"
-            + userToken + " TEXT,"
-            + userImageUrl + " TEXT"
+    //LastModified Table
+    private val lModifiedTableName = "lastmodified"
+    private val lModifiedId = "id"
+    private val lModifiedLastModified = "last_modified"
+    private val lModifiedCreateQuery = ("create table if not exists " + lModifiedTableName + " ("
+            + lModifiedId + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + lModifiedLastModified + " INTEGER"
             + ");")
 
-    fun addUser(
-        email: String,
-        token: String,
-        imageUrl: String,
-    ): Long {
-        val db = writableDatabase
-        val contentValues = ContentValues()
-
-        contentValues.put(userEmail, email)
-        contentValues.put(userToken, token)
-        contentValues.put(userImageUrl, imageUrl)
-
-        return db.insert(userTableName, null, contentValues)
-    }
-
-    fun updateUser(
-        email: String? = null,
-        token: String? = null,
-        imageUrl: String? = null,
-        originalUser: User
-    ): Int {
-        return try {
-            val db = writableDatabase
-            val contentValues = ContentValues()
-
-            if (email != null) {
-                contentValues.put(userEmail, email)
-            }
-            if (token != null) {
-                contentValues.put(userToken, token)
-            }
-            if (imageUrl != null) {
-                contentValues.put(userToken, token)
-            }
-
-            val table: String = userTableName
-            db.update(
-                table,
-                contentValues,
-                "$userId = ?",
-                arrayOf(originalUser.id.toString())
-            )
-        } catch (e: Exception) {
-            -1
-        }
-    }
-
-    private fun populateUser(cursor: Cursor): User {
-        try {
-            val id: Long = cursor.getLong(cursor.getColumnIndexOrThrow(userId))
-            val email: String = cursor.getString(cursor.getColumnIndexOrThrow(userEmail))
-            val token: String = cursor.getString(cursor.getColumnIndexOrThrow(userToken))
-            val imageUrl: String = cursor.getString(cursor.getColumnIndexOrThrow(userImageUrl))
-            return User(
-                id = id,
-                email = email,
-                token = token,
-                imageUrl = imageUrl
-            )
-        } catch (e: Exception) {
-            throw Exception("Error while retrieving user")
-        }
-    }
-
-    fun getUserById(id: Long): User? {
+    fun getLastModified(): Long {
         val db = readableDatabase
-        val table = userTableName
+        val table = lModifiedTableName
         val columns = null
-        val selection = "$userId = ?"
-        val selectionArgs: Array<String> = arrayOf("$id")
+        val selection = null
+        val selectionArgs: Array<String> = arrayOf()
         val groupBy: String? = null
         val having: String? = null
         val orderBy = null
@@ -461,28 +408,217 @@ class DatabaseHandler(context: Context) :
         val cursor: Cursor =
             db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)
         if (cursor.moveToFirst()) {
+            val res = cursor.getLong(cursor.getColumnIndexOrThrow(lModifiedLastModified))
+            return res
+        }
+        throw Exception("Last modified entry not found")
+    }
+
+    fun updateLModified(): Int {
+        try {
+            val lModified: Long = System.currentTimeMillis() / 1000L;
+            val db = writableDatabase
+            val table = lModifiedTableName
+            val columns = null
+            val selection = null
+            val selectionArgs: Array<String> = arrayOf()
+            val groupBy: String? = null
+            val having: String? = null
+            val orderBy = null
+            val limit = null
+            val cursor: Cursor =
+                db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)
+            var id: Long = -1
+            if (cursor.moveToFirst()) {
+                id = cursor.getLong(cursor.getColumnIndexOrThrow(lModifiedId))
+            }
+            if (id == -1L) {
+                cursor.close()
+                throw Exception("Last modified entry not found")
+            }
+            cursor.close()
+            val contentValues = ContentValues()
+            contentValues.put(lModifiedLastModified, lModified)
+            return db.update(
+                table,
+                contentValues,
+                "$lModifiedId = ?",
+                arrayOf(id.toString())
+            )
+        } catch (e: Exception) {
+            return -1
+        }
+    }
+
+    //User Table
+    private val userTableName = "user"
+    private val userId = "id"
+    private val userEmail = "email"
+    private val userGId = "gid"
+    private val userCreateQuery = ("create table if not exists " + userTableName + " ("
+            + userId + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + userEmail + " TEXT NOT NULL UNIQUE,"
+            + userGId + " TEXT NOT NULL UNIQUE"
+            + ");")
+
+    fun addUser(email: String, gid: String): User {
+        val db = writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(userEmail, email)
+        contentValues.put(userGId, gid)
+        val id = db.insertOrThrow(
+            userTableName,
+            null,
+            contentValues
+        )
+        val cursor =
+            db.query(userTableName, null, "$userId = ?", arrayOf(id.toString()), null, null, null)
+        if (cursor.moveToFirst()) {
+            db.close()
+            return populateUser(cursor)
+            db.close()
+        }
+        throw Exception("Something went wrong while creating the user")
+    }
+
+    fun updateUser(email: String, gid: String): User? {
+        val db = writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(userEmail, email)
+        db.update(userTableName, contentValues, "$userGId = ?", arrayOf(gid))
+        db.close()
+        return getUserByGId(gid)
+    }
+
+    private fun populateUser(cursor: Cursor): User {
+        return User(
+            id = cursor.getLong(cursor.getColumnIndexOrThrow(userId)),
+            gid = cursor.getString(cursor.getColumnIndexOrThrow(userGId)),
+            email = cursor.getString(cursor.getColumnIndexOrThrow(userEmail)),
+        )
+    }
+
+    fun getUserByGId(gid: String): User? {
+        val db = readableDatabase
+        val cursor: Cursor =
+            db.query(userTableName, null, "$userGId = ?", arrayOf(gid), null, null, null, null)
+        if (cursor.moveToFirst()) {
+            db.close()
             return populateUser(cursor)
         }
+        db.close()
         return null
     }
 
     fun getUserByEmail(email: String): User? {
         val db = readableDatabase
-        val table = userTableName
-        val columns = null
-        val selection = "$userEmail = ?"
-        val selectionArgs: Array<String> = arrayOf("$email")
-        val groupBy: String? = null
-        val having: String? = null
-        val orderBy = null
-        val limit = null
         val cursor: Cursor =
-            db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limit)
+            db.query(userTableName, null, "$userEmail = ?", arrayOf(email), null, null, null, null)
         if (cursor.moveToFirst()) {
             return populateUser(cursor)
         }
         return null
     }
+
+
+    //AccessToken Table
+    private val tokenTableName = "token"
+    private val tokenId = "id"
+    private val tokenRefresh = "refresh"
+    private val tokenAccess = "token"
+    private val tokenExpiry = "expiry"
+    private val tokenUserId = "user_id"
+    private val tokenCreateQuery = ("create table if not exists " + tokenTableName + " ("
+            + tokenId + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + tokenRefresh + " TEXT NOT NULL,"
+            + tokenAccess + " TEXT NOT NULL,"
+            + tokenExpiry + " TEXT NOT NULL,"
+            + tokenUserId + " INTEGER NOT NULL,"
+            + " foreign key($tokenUserId) references $userTableName($userId)"
+            + ");")
+
+    fun addToken(
+        token: String,
+        refresh: String,
+        expiresIn: Int,
+        userId: Long
+    ): Long {
+        val db = writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(tokenAccess, token)
+        contentValues.put(tokenRefresh, refresh)
+        contentValues.put(tokenUserId, userId)
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.SECOND, expiresIn)
+        contentValues.put(tokenExpiry, "${calendar.timeInMillis / 1000}")
+        return db.insertOrThrow(
+            tokenTableName,
+            null,
+            contentValues
+        )
+        db.close()
+    }
+
+    fun updateToken(token: String, refresh: String?, expiresIn: Int, tokenId: Long): Int {
+        val db = writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(tokenAccess, token)
+        if (refresh != null) {
+            contentValues.put(tokenRefresh, refresh)
+        }
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.SECOND, expiresIn)
+        contentValues.put(tokenExpiry, calendar.timeInMillis / 1000)
+        return db.update(
+            tokenTableName,
+            contentValues,
+            "id = ?",
+            arrayOf(tokenId.toString())
+        )
+    }
+
+    fun getTokenOfUser(id: Long): Token? {
+        val db = readableDatabase
+        val query =
+            "SELECT * FROM $tokenTableName " +
+                    "INNER JOIN $userTableName " +
+                    "ON $tokenTableName.${tokenUserId}=${userTableName}.${userId} WHERE ${userTableName}.${userId}=?"
+        val cursor: Cursor = db.rawQuery(query, arrayOf(id.toString()));
+        return if (cursor.moveToFirst()) {
+            populateToken(cursor)
+        } else {
+            null
+        }
+    }
+
+    private fun populateToken(cursor: Cursor): Token {
+        return Token(
+            cursor.getLong(cursor.getColumnIndexOrThrow(tokenId)),
+            cursor.getString(cursor.getColumnIndexOrThrow(tokenAccess)),
+            cursor.getString(cursor.getColumnIndexOrThrow(tokenRefresh)),
+            cursor.getInt(cursor.getColumnIndexOrThrow(tokenExpiry))
+        )
+    }
+
+    fun getToken(id: Long): Token {
+        val db = readableDatabase
+        val cursor: Cursor =
+            db.query(
+                tokenTableName,
+                null,
+                "$tokenId = ?",
+                arrayOf(id.toString()),
+                null,
+                null,
+                null,
+                null
+            )
+        if (cursor.moveToFirst()) {
+            return populateToken(cursor)
+        }
+        throw Exception("Error while retrieving token")
+    }
+
 
     fun beginTransaction(db: SQLiteDatabase) {
         db.beginTransaction()

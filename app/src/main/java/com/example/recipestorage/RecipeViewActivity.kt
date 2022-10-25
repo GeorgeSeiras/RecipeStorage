@@ -2,7 +2,10 @@ package com.example.recipestorage
 
 import android.content.Intent
 import android.graphics.Color
+import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +15,7 @@ import androidx.core.content.res.ResourcesCompat
 import com.example.recipestorage.models.Ingredient
 import com.example.recipestorage.models.Recipe
 import com.example.recipestorage.models.Step
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 
 class RecipeViewActivity : AppCompatActivity() {
@@ -81,6 +85,23 @@ class RecipeViewActivity : AppCompatActivity() {
         deleteButton.setOnClickListener {
             val transaction = db.writableDatabase
             val res = db.removeRecipe(recipeId, transaction)
+
+            val cm = this.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+            var isConnected: Boolean = false
+            isConnected = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                cm.getActiveNetwork() != null && cm.getNetworkCapabilities(cm.getActiveNetwork()) != null;
+            } else {
+                cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo()!!
+                    .isConnectedOrConnecting();
+            }
+            if (isConnected) {
+                val driveHandler = GoogleDriveHandler(
+                    this,
+                    GoogleSignIn.getLastSignedInAccount(this)
+                )
+                driveHandler.syncDb(this)
+            }
+
             db.closeDatabase(transaction)
             if (res == 1) {
                 val intent = Intent(this, HomePageActivity::class.java)

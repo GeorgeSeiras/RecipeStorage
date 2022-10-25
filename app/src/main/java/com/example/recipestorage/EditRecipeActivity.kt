@@ -1,16 +1,23 @@
 package com.example.recipestorage
 
+import android.Manifest.permission
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.recipestorage.models.Recipe
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.Scopes
+import com.google.android.gms.common.api.Scope
+import java.security.AccessController.getContext
+
 
 class EditRecipeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -271,12 +278,22 @@ class EditRecipeActivity : AppCompatActivity() {
             db.endTransaction(transaction)
 
 //          sync db with drive
-            val driveHandler = GoogleDriveHandler(
-                context,
-                account
-            )
+            val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+            var isConnected: Boolean = false
+            isConnected = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                cm.getActiveNetwork() != null && cm.getNetworkCapabilities(cm.getActiveNetwork()) != null;
+            } else {
+                cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo()!!
+                    .isConnectedOrConnecting();
+            }
+            if (isConnected) {
+                val driveHandler = GoogleDriveHandler(
+                    context,
+                    account
+                )
+                driveHandler.syncDb(context)
+            }
 
-            driveHandler.syncDb(context)
             db.closeDatabase(transaction)
 
             //return to home page with success toast
