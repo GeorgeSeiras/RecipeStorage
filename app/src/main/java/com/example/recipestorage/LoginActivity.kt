@@ -34,7 +34,6 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        signOut(mGoogleSignInClient)
         if (GoogleSignIn.getLastSignedInAccount(this) != null) {
             val handler = GoogleDriveHandler(this, GoogleSignIn.getLastSignedInAccount(this))
             handler.syncDb(this)
@@ -134,7 +133,7 @@ class LoginActivity : AppCompatActivity() {
                             if (token!!.refresh != null && token!!.token != null) {
                                 db.updateToken(
                                     credentials.accessToken,
-                                    null,
+                                    credentials.refreshToken ?: token.refresh,
                                     credentials.expiresInSeconds.toInt(),
                                     token.id
                                 )
@@ -165,13 +164,6 @@ class LoginActivity : AppCompatActivity() {
 
     companion object {
         const val RC_SIGN_IN = 9001
-    }
-
-    private fun signOut(mGoogleSignInClient: GoogleSignInClient) {
-        mGoogleSignInClient.signOut()
-            .addOnCompleteListener(this) {
-                // Update your UI here
-            }
     }
 
     fun downloadBackup(glCredential: GoogleCredential) {

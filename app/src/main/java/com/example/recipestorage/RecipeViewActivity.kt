@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -24,15 +23,18 @@ class RecipeViewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_recipe_view)
 
         val db = DatabaseHandler(this)
-        val transaction = db.readableDatabase
         val extras: Bundle? = intent.extras
+
+        val logoutButton = findViewById<Button>(R.id.btn_logout)
+        logoutButton.setOnClickListener {
+            Logout().logoutPopup(logoutButton, this)
+        }
+
         if (extras != null) {
-            println(extras.containsKey("message"))
             if (extras.containsKey("message")) {
                 Toast.makeText(this, extras.get("message").toString(), Toast.LENGTH_LONG).show()
             }
-            val recipe: Recipe = db.getRecipeById(extras.getLong("recipeId"), transaction)
-            db.closeDatabase(transaction)
+            val recipe: Recipe = db.getRecipeById(extras.getLong("recipeId"))
 
             findViewById<TextView>(R.id.title).text = recipe.title
             findViewById<TextView>(R.id.Course).text = recipe.course
@@ -81,10 +83,9 @@ class RecipeViewActivity : AppCompatActivity() {
         cancelButton.setOnClickListener {
             popupWindow.dismiss()
         }
-        val deleteButton: Button = popupView.findViewById(R.id.bt_delete_confirm)
+        val deleteButton: Button = popupView.findViewById(R.id.bt_confirm)
         deleteButton.setOnClickListener {
-            val transaction = db.writableDatabase
-            val res = db.removeRecipe(recipeId, transaction)
+            val res = db.removeRecipe(recipeId)
 
             val cm = this.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
             var isConnected: Boolean = false
@@ -102,7 +103,6 @@ class RecipeViewActivity : AppCompatActivity() {
                 driveHandler.syncDb(this)
             }
 
-            db.closeDatabase(transaction)
             if (res == 1) {
                 val intent = Intent(this, HomePageActivity::class.java)
                 intent.putExtra("message", "Recipe Successfully Deleted")

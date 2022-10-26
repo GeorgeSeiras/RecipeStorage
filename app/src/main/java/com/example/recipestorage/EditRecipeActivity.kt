@@ -25,9 +25,13 @@ class EditRecipeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_edit_recipe)
         val db = DatabaseHandler(this)
         val transaction = db.readableDatabase
+        val logoutButton = findViewById<Button>(R.id.btn_logout)
+        logoutButton.setOnClickListener {
+            Logout().logoutPopup(logoutButton, this)
+        }
         val extras: Bundle? = intent.extras
         if (extras != null) {
-            val recipe: Recipe = db.getRecipeById(extras.getLong("recipeId"), transaction)
+            val recipe: Recipe = db.getRecipeById(extras.getLong("recipeId"))
             db.closeDatabase(transaction)
             findViewById<EditText>(R.id.title_edit).setText(recipe.title)
             findViewById<EditText>(R.id.course).setText(recipe.course)

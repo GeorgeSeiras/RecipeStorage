@@ -9,12 +9,6 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.recipestorage.models.Recipe
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.Scopes
-import com.google.android.gms.common.api.Scope
-
 
 class HomePageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +20,10 @@ class HomePageActivity : AppCompatActivity() {
             if (extras.containsKey("message")) {
                 Toast.makeText(this, extras.get("message").toString(), Toast.LENGTH_LONG).show()
             }
+        }
+        val logoutButton = findViewById<Button>(R.id.btn_logout)
+        logoutButton.setOnClickListener {
+            Logout().logoutPopup(logoutButton, this)
         }
         val newRecipeButton: FrameLayout = findViewById(R.id.fl_new_recipe_redirect)
         newRecipeButton.setOnClickListener {

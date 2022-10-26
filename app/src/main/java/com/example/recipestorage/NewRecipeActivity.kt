@@ -2,7 +2,6 @@ package com.example.recipestorage
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Color.parseColor
 import android.net.ConnectivityManager
 import android.os.Build
@@ -27,6 +26,11 @@ class NewRecipeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_recipe)
         val db = DatabaseHandler(this)
+
+        val logoutButton = findViewById<Button>(R.id.btn_logout)
+        logoutButton.setOnClickListener {
+            Logout().logoutPopup(logoutButton, this)
+        }
 
         //ingredient dynamic table
         val ingredientButton = findViewById<Button>(R.id.button_ingredient)
@@ -245,6 +249,7 @@ class NewRecipeActivity : AppCompatActivity() {
                     .isConnectedOrConnecting();
             }
             if (isConnected) {
+                Log.v("TEST", "${GoogleSignIn.getLastSignedInAccount(this)!!.email}")
                 val driveHandler = GoogleDriveHandler(
                     this,
                     GoogleSignIn.getLastSignedInAccount(this)
@@ -279,7 +284,7 @@ class NewRecipeActivity : AppCompatActivity() {
         cancelButton.setOnClickListener {
             popupWindow.dismiss()
         }
-        val deleteButton: Button = popupView.findViewById(R.id.bt_delete_confirm)
+        val deleteButton: Button = popupView.findViewById(R.id.bt_confirm)
         deleteButton.setOnClickListener {
             table.removeView(row)
             popupWindow.dismiss()

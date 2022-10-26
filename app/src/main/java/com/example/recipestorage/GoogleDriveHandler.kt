@@ -17,9 +17,10 @@ import com.google.api.services.drive.model.File
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.AccessToken
 import com.google.auth.oauth2.GoogleCredentials
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
+import com.google.auth.oauth2.OAuth2Credentials
+import com.google.gson.JsonObject
+import org.json.JSONObject
+import java.io.*
 import java.util.*
 
 
@@ -38,9 +39,6 @@ class GoogleDriveHandler(
             db.getUserByEmail(account!!.email!!) ?: throw Exception("Something went wrong...")
         var token = db.getTokenOfUser(user!!.id) ?: throw Exception("Something went wrong...")
         val calendar = Calendar.getInstance()
-        Log.v("TEST", "${calendar.timeInMillis / 1000L < token!!.expiry}")
-        Log.v("TEST", "db: ${token.expiry}")
-        Log.v("TEST", "nw: ${calendar.timeInMillis / 1000L}")
 
         if (calendar.timeInMillis / 1000L < token!!.expiry) {
             val accessToken = AccessToken(token.token, Date(token.expiry * 1000L))
@@ -48,36 +46,67 @@ class GoogleDriveHandler(
                 .createScoped(listOf("${DriveScopes.DRIVE_FILE} ${DriveScopes.DRIVE_APPDATA}"))
         } else {
             val thread = Thread {
-                val refreshCredentials = GoogleCredential
-                    .Builder()
-                    .setJsonFactory(GsonFactory.getDefaultInstance())
-                    .setTransport(NetHttpTransport())
-                    .setClientSecrets(
-                        BuildConfig.CLIENT_ID,
-                        BuildConfig.CLIENT_SECRET
-                    )
-                    .build()
-                    .setRefreshToken(token.refresh)
-                    .setAccessToken(token.token)
-                    .setExpiresInSeconds(token.expiry.toLong())
-                refreshCredentials.refreshToken()
-
+                val jsonCreds = JSONObject(
+                    "{" +
+                            "\"type\":\"authorized_user\"," +
+                            "\"client_id\":\"${BuildConfig.CLIENT_ID}\"," +
+                            "\"client_secret\":\"${BuildConfig.CLIENT_SECRET}\"," +
+                            "\"refresh_token\":\"${token.refresh}\"" +
+                            "}"
+                )
+                val creds = GoogleCredentials.fromStream(
+                    jsonCreds.toString().byteInputStream()
+                )
+                val newToken = creds.refreshAccessToken()
                 val cal = Calendar.getInstance()
-                cal.add(Calendar.SECOND, refreshCredentials.expiresInSeconds.toInt())
+//                cal.add(Calendar.SECOND, newToken.expirationTime)
                 db.updateToken(
-                    refreshCredentials.accessToken,
+                    newToken.tokenValue,
                     null,
-                    refreshCredentials.expiresInSeconds.toInt(),
+                    (newToken.expirationTime.time / 1000L).toInt(),
                     token.id
                 )
+//                val refreshCredentials = GoogleCredential
+//                    .Builder()
+//                    .setJsonFactory(GsonFactory.getDefaultInstance())
+//                    .setTransport(NetHttpTransport())
+//                    .setClientSecrets(
+//                        BuildConfig.CLIENT_ID,
+//                        BuildConfig.CLIENT_SECRET
+//                    )
+//                    .build()
+//                    .setRefreshToken(token.refresh)
+//                    .setAccessToken(token.token)
+//                    .setExpiresInSeconds(token.expiry.toLong())
+//                refreshCredentials.refreshToken()
+
+//                val cal = Calendar.getInstance()
+//                cal.add(Calendar.SECOND, refreshCredentials.expiresInSeconds.toInt())
+//                db.updateToken(
+//                    refreshCredentials.accessToken,
+//                    null,
+//                    refreshCredentials.expiresInSeconds.toInt(),
+//                    token.id
+//                )
             }
             thread.start()
             thread.join()
             val refreshedToken = db.getToken(token.id)
-            val accessToken =
-                AccessToken(refreshedToken.token, Date(refreshedToken.expiry.toLong()))
-            return GoogleCredentials.create(accessToken)
-                .createScoped(listOf("${DriveScopes.DRIVE_FILE} ${DriveScopes.DRIVE_APPDATA}"))
+            val jsonCreds = JSONObject(
+                "{" +
+                        "\"type\":\"authorized_user\"," +
+                        "\"client_id\":\"${BuildConfig.CLIENT_ID}\"," +
+                        "\"client_secret\":\"${BuildConfig.CLIENT_SECRET}\"," +
+                        "\"refresh_token\":\"${refreshedToken.refresh}\"" +
+                        "}"
+            )
+            return GoogleCredentials.fromStream(
+                jsonCreds.toString().byteInputStream()
+            )
+//            val accessToken =
+//                AccessToken(refreshedToken.token, Date(refreshedToken.expiry.toLong()))
+//            return GoogleCredentials.create(accessToken)
+//                .createScoped(listOf("${DriveScopes.DRIVE_FILE} ${DriveScopes.DRIVE_APPDATA}"))
 
         }
         throw Exception("Some error")
@@ -87,6 +116,7 @@ class GoogleDriveHandler(
     @Throws(IOException::class)
     fun syncDb(context: Context): Int {
         val db = DatabaseHandler(context)
+
         val requestInitializer: HttpRequestInitializer = HttpCredentialsAdapter(
             credentials
         )

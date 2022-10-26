@@ -89,12 +89,13 @@ class DatabaseHandler(context: Context) :
     }
 
     fun removeRecipe(
-        id: Long,
-        db: SQLiteDatabase
+        id: Long
     ): Int {
+        val db = writableDatabase
         val tableName = recipeTableName
-        val whereArgs = "$recipeId = ?"
+        val whereArgs = "id = ?"
         val whereClause = arrayOf("$id")
+        updateLModified()
         return db.delete(tableName, whereArgs, whereClause)
     }
 
@@ -195,7 +196,8 @@ class DatabaseHandler(context: Context) :
         return recipes
     }
 
-    fun getRecipeById(id: Long, db: SQLiteDatabase): Recipe {
+    fun getRecipeById(id: Long): Recipe {
+        val db = readableDatabase
         val table = recipeTableName
         val columns = null
         val selection = "$recipeId = ?"
@@ -474,9 +476,7 @@ class DatabaseHandler(context: Context) :
         val cursor =
             db.query(userTableName, null, "$userId = ?", arrayOf(id.toString()), null, null, null)
         if (cursor.moveToFirst()) {
-            db.close()
             return populateUser(cursor)
-            db.close()
         }
         throw Exception("Something went wrong while creating the user")
     }
@@ -486,7 +486,6 @@ class DatabaseHandler(context: Context) :
         val contentValues = ContentValues()
         contentValues.put(userEmail, email)
         db.update(userTableName, contentValues, "$userGId = ?", arrayOf(gid))
-        db.close()
         return getUserByGId(gid)
     }
 
@@ -503,10 +502,8 @@ class DatabaseHandler(context: Context) :
         val cursor: Cursor =
             db.query(userTableName, null, "$userGId = ?", arrayOf(gid), null, null, null, null)
         if (cursor.moveToFirst()) {
-            db.close()
             return populateUser(cursor)
         }
-        db.close()
         return null
     }
 
@@ -556,7 +553,6 @@ class DatabaseHandler(context: Context) :
             null,
             contentValues
         )
-        db.close()
     }
 
     fun updateToken(token: String, refresh: String?, expiresIn: Int, tokenId: Long): Int {
